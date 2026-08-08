@@ -11,7 +11,7 @@ export const BUSINESS = {
   established: 2019,
 };
 
-export const CAR_TYPES = ["Sedan", "SUV", "Ertiga", "Innova Crysta"];
+export const CAR_TYPES = ["Swift Dzire", "Ertiga", "Innova Crysta"];
 export const TRIP_TYPES = ["One Way", "Round Trip"];
 
 export const SERVICES = [
@@ -23,10 +23,9 @@ export const SERVICES = [
 ];
 
 export const FLEET = [
-  { name: "Sedan",         seats: "4 + 1", luggage: "2 bags", best: "City & short trips", price: "₹11/km" },
-  { name: "SUV",           seats: "6 + 1", luggage: "4 bags", best: "Groups & rough roads", price: "₹15/km" },
-  { name: "Ertiga",        seats: "6 + 1", luggage: "3 bags", best: "Family outings",       price: "₹13/km" },
-  { name: "Innova Crysta", seats: "6 + 1", luggage: "4 bags", best: "Premium comfort",      price: "₹17/km" },
+  { name: "Swift Dzire",   img: "/dzire.jpeg", seats: "4 + 1", luggage: "2 bags", best: "City & short trips",  price: "₹11/km" },
+  { name: "Ertiga",        img: "/ertiga.jpeg", seats: "6 + 1", luggage: "3 bags", best: "Family outings",       price: "₹14/km" },
+  { name: "Innova Crysta", img: "/innova.webp", seats: "6 + 1", luggage: "4 bags", best: "Premium comfort",      price: "₹19/km" },
 ];
 
 export const LOCATIONS = [
