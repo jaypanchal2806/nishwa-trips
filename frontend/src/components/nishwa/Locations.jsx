@@ -22,7 +22,7 @@ export default function Locations() {
           {LOCATIONS.map((city) => (
             <a
               key={city}
-              href={`${BUSINESS.whatsappBase}?text=${encodeURIComponent(`Hi Nishwa Tours, I want a cab from Ahmedabad to ${city}.`)}`}
+              href={`${BUSINESS.whatsappBase}?text=${encodeURIComponent(`Hi Nishwa Travels, I want a cab from Ahmedabad to ${city}.`)}`}
               target="_blank" rel="noreferrer"
               data-testid={`location-${city.toLowerCase().replace(/\s+/g,'-')}`}
               className="group flex items-center justify-between px-4 py-4 rounded-xl border border-stone-300/60 bg-white/70 backdrop-blur hover:border-[#FC5B22] hover:bg-white transition-colors duration-200"

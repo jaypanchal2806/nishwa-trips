@@ -31,11 +31,11 @@ export default function Header() {
         <a href="#top" data-testid="brand-logo" className="flex items-center gap-3 group">
           <img
             src="/nishwa-logo.jpg"
-            alt="Nishwa Tours & Travels"
+            alt="Nishwa Travels"
             className="w-11 h-11 md:w-12 md:h-12 rounded-xl object-cover ring-1 ring-stone-200"
           />
           <div className="leading-tight">
-            <div className="font-display font-semibold text-[15px] md:text-base">Nishwa Tours &amp; Travels</div>
+            <div className="font-display font-semibold text-[15px] md:text-base">Nishwa Travels</div>
             <div className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-stone-500 flex items-center gap-1">
               <MapPin className="w-3 h-3" /> Ahmedabad
             </div>
@@ -66,7 +66,7 @@ export default function Header() {
             <Phone className="w-4 h-4" /> {BUSINESS.phoneDisplay}
           </a>
           <a
-            href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20I%20want%20to%20book%20a%20cab.`}
+            href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Travels,%20I%20want%20to%20book%20a%20cab.`}
             target="_blank"
             rel="noreferrer"
             data-testid="header-whatsapp-btn"

@@ -14,7 +14,7 @@ export default function WhyUs() {
               Little details that make big journeys.
             </h2>
             <p className="text-stone-600 mt-4 leading-relaxed">
-              We built Nishwa Tours around a simple idea — you should feel like a guest,
+              We built Nishwa Travels around a simple idea — you should feel like a guest,
               not a passenger. Every trip is planned with that care.
             </p>
           </div>

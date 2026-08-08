@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3">
-              <img src="/nishwa-logo.jpg" alt="Nishwa Tours & Travels" className="w-14 h-14 rounded-xl object-cover ring-1 ring-white/10" />
+              <img src="/nishwa-logo.jpg" alt="Nishwa Travels" className="w-14 h-14 rounded-xl object-cover ring-1 ring-white/10" />
               <div>
                 <div className="font-display font-semibold text-lg">{BUSINESS.name}</div>
                 <div className="text-[11px] uppercase tracking-[0.22em] text-stone-400">Ahmedabad · Est. {BUSINESS.established}</div>
@@ -32,7 +32,7 @@ export default function Footer() {
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours!`}
+                href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Travels!`}
                 target="_blank" rel="noreferrer"
                 data-testid="footer-whatsapp"
                 aria-label="WhatsApp"

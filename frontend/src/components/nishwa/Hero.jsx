@@ -81,7 +81,7 @@ export default function Hero({ apiBase }) {
             <div className="inline-flex items-center gap-3 md:gap-4">
               <img src="/nishwa-logo.jpg" alt="Nishwa" className="w-14 h-14 md:w-16 md:h-16 rounded-2xl object-cover ring-2 ring-white/20 shadow-lg" />
               <h1 className="font-display italic font-bold text-white text-4xl md:text-6xl leading-none tracking-tight">
-                <span className="text-[#FC5B22]">NISHWA</span> <span>Tours</span><span className="text-[#FC5B22] text-2xl md:text-4xl align-top">.in</span>
+                <span className="text-[#FC5B22]">NISHWA</span> <span>Travels</span><span className="text-[#FC5B22] text-2xl md:text-4xl align-top">.in</span>
               </h1>
             </div>
 
@@ -99,7 +99,7 @@ export default function Hero({ apiBase }) {
 
             <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
               <a
-                href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20I%20want%20to%20book%20a%20cab.`}
+                href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Travels,%20I%20want%20to%20book%20a%20cab.`}
                 target="_blank" rel="noreferrer"
                 data-testid="hero-whatsapp-cta"
                 className="btn-outline-orange inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-bold italic font-display tracking-wide"

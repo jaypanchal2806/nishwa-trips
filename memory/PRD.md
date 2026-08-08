@@ -1,7 +1,7 @@
-# Nishwa Tours & Travels — Product Requirements
+# Nishwa Travels — Product Requirements
 
 ## Original Problem Statement
-Single-page website like jiyaonewaycab.in for Nishwa Tours & Travels (Ahmedabad). Progressively expanded to include:
+Single-page website like jiyaonewaycab.in for Nishwa Travels (Ahmedabad). Progressively expanded to include:
 - Multi-section marketing site with booking form
 - Fleet showcase (Swift Dzire / Ertiga / Innova Crysta)
 - Full route catalog like bookonewaytaxi.in with per-route detail pages
@@ -9,7 +9,7 @@ Single-page website like jiyaonewaycab.in for Nishwa Tours & Travels (Ahmedabad)
 - Owner admin panel to view/manage bookings
 
 ## Business Info
-- **Name**: Nishwa Tours & Travels
+- **Name**: Nishwa Travels
 - **City**: Ahmedabad, Gujarat
 - **Phone / WhatsApp**: +91 76005 15130
 - **Email**: nishwatourandtravels@gmail.com

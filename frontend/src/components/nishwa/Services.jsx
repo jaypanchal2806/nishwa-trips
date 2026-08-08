@@ -21,7 +21,7 @@ export default function Services() {
             </h2>
           </div>
           <a
-            href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20please%20share%20your%20fare%20chart.`}
+            href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Travels,%20please%20share%20your%20fare%20chart.`}
             target="_blank" rel="noreferrer"
             data-testid="services-cta"
             className="btn-primary inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold"
@@ -49,7 +49,7 @@ export default function Services() {
                 <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
                   <span className="text-[11px] uppercase tracking-[0.22em] text-stone-500">0{i+1}</span>
                   <a
-                    href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20I%20need%20${encodeURIComponent(s.title)}.`}
+                    href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Travels,%20I%20need%20${encodeURIComponent(s.title)}.`}
                     target="_blank" rel="noreferrer"
                     className="text-sm font-medium text-[#16183F] group-hover:text-[#FC5B22] inline-flex items-center gap-1 transition-colors duration-200"
                   >

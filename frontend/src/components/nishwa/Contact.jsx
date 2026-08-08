@@ -28,7 +28,7 @@ export default function Contact() {
               icon={<MessageCircle className="w-5 h-5" />}
               label="WhatsApp"
               value="Instant reply"
-              href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours!`}
+              href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Travels!`}
               accent
             />
             <ContactCard
@@ -66,7 +66,7 @@ export default function Contact() {
         <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-lg bg-white">
           <div className="h-[360px] w-full">
             <iframe
-              title="Nishwa Tours & Travels — Ahmedabad location"
+              title="Nishwa Travels — Ahmedabad location"
               src="https://www.google.com/maps?q=Ahmedabad,%20Gujarat&z=11&output=embed"
               width="100%"
               height="100%"

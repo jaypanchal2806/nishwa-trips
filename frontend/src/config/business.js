@@ -1,7 +1,7 @@
-// Central business config for Nishwa Tours & Travels
+// Central business config for Nishwa Travels
 export const BUSINESS = {
-  name: "Nishwa Tours & Travels",
-  short: "Nishwa Tours",
+  name: "Nishwa Travels",
+  short: "Nishwa Travels",
   tagline: "OneWay Ride Anytime — AnyWhere from Ahmedabad",
   city: "Ahmedabad, Gujarat",
   phone: "7600515130",

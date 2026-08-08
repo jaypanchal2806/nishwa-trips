@@ -51,7 +51,7 @@ export default function Fleet() {
                     <div className="font-display italic font-bold text-2xl text-[#FC5B22]">{car.price}</div>
                   </div>
                   <a
-                    href={`${BUSINESS.whatsappBase}?text=${encodeURIComponent(`Hi Nishwa Tours, I want to book a ${car.name}.`)}`}
+                    href={`${BUSINESS.whatsappBase}?text=${encodeURIComponent(`Hi Nishwa Travels, I want to book a ${car.name}.`)}`}
                     target="_blank" rel="noreferrer"
                     className="btn-whatsapp px-4 py-2.5 rounded-full text-sm font-semibold"
                   >

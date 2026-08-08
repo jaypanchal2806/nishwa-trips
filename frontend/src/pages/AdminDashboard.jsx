@@ -288,7 +288,7 @@ export default function AdminDashboard() {
                             <Phone className="w-4 h-4" />
                           </a>
                           <a
-                            href={`${BUSINESS.whatsappBase.replace('/91' + BUSINESS.phone, '/91' + b.phone.replace(/\D/g, ''))}?text=${encodeURIComponent(`Hi ${b.name}, this is Nishwa Tours regarding your ${b.pickup} → ${b.drop} enquiry.`)}`}
+                            href={`${BUSINESS.whatsappBase.replace('/91' + BUSINESS.phone, '/91' + b.phone.replace(/\D/g, ''))}?text=${encodeURIComponent(`Hi ${b.name}, this is Nishwa Travels regarding your ${b.pickup} → ${b.drop} enquiry.`)}`}
                             target="_blank" rel="noreferrer"
                             title="WhatsApp"
                             className="w-8 h-8 rounded-full bg-[#25D366] text-white grid place-items-center hover:bg-[#1EBE57]"

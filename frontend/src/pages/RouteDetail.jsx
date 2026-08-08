@@ -17,7 +17,7 @@ const todayISO = () => new Date().toISOString().split("T")[0];
 
 const waLink = (from, to, extra = "") =>
   `${BUSINESS.whatsappBase}?text=${encodeURIComponent(
-    `Hi Nishwa Tours, I want to book a one-way cab: ${from} → ${to}.${extra ? " " + extra : ""}`
+    `Hi Nishwa Travels, I want to book a one-way cab: ${from} → ${to}.${extra ? " " + extra : ""}`
   )}`;
 
 export default function RouteDetail() {
@@ -230,7 +230,7 @@ function RouteBookingForm({ route }) {
 
   const buildWA = () => {
     const msg = [
-      `Hi Nishwa Tours, I want to book:`,
+      `Hi Nishwa Travels, I want to book:`,
       `• Route: ${route.from} → ${route.to} (${route.km} km)`,
       `• Name: ${form.name}`,
       `• Phone: ${form.phone}`,
