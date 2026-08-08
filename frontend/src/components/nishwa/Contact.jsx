@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, Clock, Instagram, ExternalLink } from "lucide-react";
 import { BUSINESS } from "@/config/business";
 
 export default function Contact() {
@@ -39,30 +39,58 @@ export default function Contact() {
               href={`mailto:${BUSINESS.email}`}
             />
             <ContactCard
+              testId="contact-instagram"
+              icon={<Instagram className="w-5 h-5" />}
+              label="Instagram"
+              value={"@" + BUSINESS.instagram}
+              href={BUSINESS.instagramUrl}
+              instagram
+            />
+            <ContactCard
               testId="contact-hours"
               icon={<Clock className="w-5 h-5" />}
               label="Hours"
               value="24 x 7, all days"
             />
+            <ContactCard
+              testId="contact-location"
+              icon={<MapPin className="w-5 h-5" />}
+              label="Location"
+              value="Ahmedabad, Gujarat"
+              href={BUSINESS.mapUrl}
+            />
           </div>
         </div>
 
-        <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-lg h-[420px] bg-white">
-          <div className="h-full w-full grid place-items-center relative bg-[url('https://images.unsplash.com/photo-1632671794713-6167b013168c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwyfHxhaG1lZGFiYWQlMjBjaXR5JTIwYXJjaGl0ZWN0dXJlfGVufDB8fHx8MTc4NjE4MDk3Nnww&ixlib=rb-4.1.0&q=85')] bg-cover bg-center">
-            <div className="absolute inset-0 bg-[#16183F]/60" />
-            <div className="relative text-center text-[#FFFFFF] px-6">
-              <MapPin className="w-8 h-8 mx-auto text-[#FC5B22]" />
-              <div className="font-display font-semibold text-2xl md:text-3xl mt-3">Based in Ahmedabad</div>
-              <div className="text-sm mt-1.5 opacity-80">Gujarat, India · Serving 75+ cities</div>
-              <a
-                href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20I%20want%20to%20know%20the%20office%20address.`}
-                target="_blank" rel="noreferrer"
-                data-testid="contact-map-cta"
-                className="btn-primary mt-5 inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold"
-              >
-                Ask for exact address
-              </a>
+        {/* Map + Directions */}
+        <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-lg bg-white">
+          <div className="h-[360px] w-full">
+            <iframe
+              title="Nishwa Tours & Travels — Ahmedabad location"
+              src="https://www.google.com/maps?q=Ahmedabad,%20Gujarat&z=11&output=embed"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+              data-testid="contact-map-iframe"
+            />
+          </div>
+          <div className="p-5 flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#FBFAF7] border-t border-[#EEECFB]">
+            <div>
+              <div className="font-display italic font-bold text-lg text-[#16183F]">Based in Ahmedabad</div>
+              <div className="text-sm text-stone-600">Gujarat, India · Serving 75+ cities</div>
             </div>
+            <a
+              href={BUSINESS.mapUrl}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="contact-map-cta"
+              className="btn-primary inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold"
+            >
+              Get Directions <ExternalLink className="w-4 h-4" />
+            </a>
           </div>
         </div>
       </div>
@@ -70,20 +98,26 @@ export default function Contact() {
   );
 }
 
-function ContactCard({ icon, label, value, href, accent, testId }) {
+function ContactCard({ icon, label, value, href, accent, instagram, testId }) {
+  const cls = accent
+    ? "bg-[#25D366] text-white border-[#25D366]"
+    : instagram
+      ? "text-white border-transparent bg-[linear-gradient(135deg,#F58529_0%,#DD2A7B_45%,#8134AF_75%,#515BD4_100%)]"
+      : "bg-white border-stone-200 text-stone-900";
+  const iconBoxCls = accent || instagram
+    ? "bg-white/15"
+    : "bg-[#FFF1EB] text-[#FC5B22]";
+  const labelCls = accent || instagram ? "text-white/80" : "text-stone-500";
   const inner = (
-    <div
-      data-testid={testId}
-      className={`rounded-2xl border p-5 flex items-start gap-3 card-lift ${accent ? "bg-[#25D366] text-white border-[#25D366]" : "bg-white border-stone-200 text-stone-900"}`}
-    >
-      <div className={`w-10 h-10 rounded-xl grid place-items-center ${accent ? "bg-white/15" : "bg-[#FFF1EB] text-[#FC5B22]"}`}>
-        {icon}
-      </div>
+    <div data-testid={testId} className={`rounded-2xl border p-5 flex items-start gap-3 card-lift ${cls}`}>
+      <div className={`w-10 h-10 rounded-xl grid place-items-center ${iconBoxCls}`}>{icon}</div>
       <div>
-        <div className={`text-[11px] uppercase tracking-[0.2em] ${accent ? "text-white/80" : "text-stone-500"}`}>{label}</div>
-        <div className="font-display font-semibold text-base mt-1">{value}</div>
+        <div className={`text-[11px] uppercase tracking-[0.2em] ${labelCls}`}>{label}</div>
+        <div className="font-display font-semibold text-base mt-1 break-all">{value}</div>
       </div>
     </div>
   );
-  return href ? <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">{inner}</a> : inner;
+  return href ? (
+    <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noreferrer">{inner}</a>
+  ) : inner;
 }

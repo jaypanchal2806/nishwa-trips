@@ -8,6 +8,9 @@ export const BUSINESS = {
   phoneDisplay: "+91 76005 15130",
   email: "Nishwatours.travels@gmail.com",
   whatsappBase: "https://wa.me/917600515130",
+  mapUrl: "https://maps.app.goo.gl/thDTmPJm7sBEcGgR7?g_st=ic",
+  instagram: "nishwa_tours_travels",
+  instagramUrl: "https://instagram.com/nishwa_tours_travels",
   established: 2019,
 };
 
