@@ -3,44 +3,32 @@
 
 set -e
 
-echo "========================================"
 echo "Starting Nishwa Trips build"
-echo "========================================"
 
-echo ""
-echo "Installing backend dependencies..."
+echo "Installing backend dependencies"
 pip install -r backend/requirements.txt
 
-echo ""
-echo "Installing frontend dependencies..."
+echo "Installing frontend dependencies"
 cd frontend
 
-echo ""
-echo "Cleaning old node modules..."
+echo "Cleaning node_modules"
 rm -rf node_modules
 
-echo ""
-echo "Installing frontend packages..."
+echo "Installing npm packages"
 npm install --legacy-peer-deps
 
-echo ""
-echo "Installing compatible AJV packages..."
-npm install --save-dev ajv@8.17.1 ajv-keywords@5.1.0 --legacy-peer-deps
+echo "Installing compatible AJV packages"
+npm install ajv@8.17.1 ajv-keywords@5.1.0 --save-dev --legacy-peer-deps
 
-echo ""
-echo "Building React frontend..."
+echo "Building React application"
 npm run build
 
-echo ""
-echo "Checking React build..."
+echo "Checking build folder"
 
 if [ ! -d "build" ]; then
-    echo "ERROR: React build folder was not created."
+    echo "ERROR: frontend/build was not created"
     exit 1
 fi
 
-echo ""
-echo "========================================"
-echo "Frontend build completed successfully!"
-echo "========================================"
+echo "Nishwa Trips frontend build completed successfully"
 ```
