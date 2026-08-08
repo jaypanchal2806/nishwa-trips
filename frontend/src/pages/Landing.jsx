@@ -3,6 +3,7 @@ import Header from "@/components/nishwa/Header";
 import Hero from "@/components/nishwa/Hero";
 import Services from "@/components/nishwa/Services";
 import Fleet from "@/components/nishwa/Fleet";
+import Routes from "@/components/nishwa/Routes";
 import WhyUs from "@/components/nishwa/WhyUs";
 import Locations from "@/components/nishwa/Locations";
 import Testimonials from "@/components/nishwa/Testimonials";
@@ -26,6 +27,7 @@ export default function Landing() {
         <Hero apiBase={API} />
         <Services />
         <Fleet />
+        <Routes />
         <WhyUs />
         <Locations />
         <Testimonials />

@@ -5,6 +5,7 @@ import { BUSINESS } from "@/config/business";
 const NAV = [
   { label: "Services",    href: "#services" },
   { label: "Fleet",       href: "#fleet" },
+  { label: "Routes",      href: "#routes" },
   { label: "Locations",   href: "#locations" },
   { label: "Reviews",     href: "#reviews" },
   { label: "Contact",     href: "#contact" },
