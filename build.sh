@@ -1,10 +1,10 @@
 ```bash
 #!/usr/bin/env bash
 
-set -o errexit
+set -e
 
 echo "========================================"
-echo "Starting Nishwa Trips build..."
+echo "Starting Nishwa Trips build"
 echo "========================================"
 
 echo ""
@@ -16,8 +16,16 @@ echo "Installing frontend dependencies..."
 cd frontend
 
 echo ""
-echo "Running npm install with legacy peer dependencies..."
+echo "Cleaning old node modules..."
+rm -rf node_modules
+
+echo ""
+echo "Installing frontend packages..."
 npm install --legacy-peer-deps
+
+echo ""
+echo "Installing compatible AJV packages..."
+npm install --save-dev ajv@8.17.1 ajv-keywords@5.1.0 --legacy-peer-deps
 
 echo ""
 echo "Building React frontend..."
@@ -34,6 +42,5 @@ fi
 echo ""
 echo "========================================"
 echo "Frontend build completed successfully!"
-echo "Build folder found: frontend/build"
 echo "========================================"
 ```
