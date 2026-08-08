@@ -1,0 +1,24 @@
+{
+  "summary": "First-finish smoke tests for Nishwa Tours & Travels: backend (3 endpoints) and frontend (booking flow + all sections/testids + mobile menu) all pass. Booking form successfully POSTs to /api/bookings and shows success toast.",
+  "tested_scope": ["frontend", "backend", "integration"],
+  "passed": [
+    "GET /api/ -> 200 {message: 'Nishwa Tours & Travels API is running'}",
+    "POST /api/bookings with valid payload -> 200 with UUID id and echoed fields",
+    "POST /api/bookings with invalid payload -> 422 with pydantic validation errors",
+    "GET /api/bookings -> 200 returns list sorted by created_at desc, includes new booking",
+    "Landing page loads with no console errors; all sections render",
+    "booking-form present with input-name/input-phone/input-pickup/input-drop/input-date; submit posts to /api/bookings (200) and shows success toast 'Enquiry saved! Opening WhatsApp…'",
+    "header-call-btn href=tel:7600515130; header-whatsapp-btn href contains wa.me/917600515130",
+    "floating-whatsapp-btn visible and href contains wa.me/917600515130",
+    "All 5 service cards render (oneway/roundtrip/local/outstation/airport)",
+    "All 4 fleet cards render (sedan/suv/ertiga/innova-crysta)",
+    "12 location cards render",
+    "mobile-menu-toggle opens mobile-menu on 390px viewport"
+  ],
+  "failed": [],
+  "action_items": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "retest_needed": false,
+  "full_testing_deferred": true,
+  "notes": "Booking form has HTML5 date min=today attribute; past dates are blocked at browser level (expected behavior). Tested with a future date (2026-12-15) and it succeeded. WhatsApp window.open triggers after 400ms delay post-POST (blocked by browser popup policy in headless run, but success toast confirms flow works)."
+}

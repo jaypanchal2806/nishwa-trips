@@ -1,34 +1,47 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
-}
+/* Nishwa Tours & Travels - Global App Styles */
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
-}
-
-.App-header {
-    background-color: #0f0f10;
+.App {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    background: #FDFBF7;
 }
 
-.App-link {
-    color: #61dafb;
+/* Prevent transition-all antipattern; use targeted transitions on components. */
+
+.btn-primary {
+    background: #D97706;
+    color: #FDFBF7;
+    transition: background-color 300ms ease-out, transform 300ms ease-out, box-shadow 300ms ease-out;
+}
+.btn-primary:hover {
+    background: #B45309;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -12px rgba(217, 119, 6, 0.5);
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.btn-whatsapp {
+    background: #25D366;
+    color: #ffffff;
+    transition: background-color 300ms ease-out, transform 300ms ease-out, box-shadow 300ms ease-out;
+}
+.btn-whatsapp:hover {
+    background: #1EBE57;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -12px rgba(37, 211, 102, 0.55);
+}
+
+.card-lift {
+    transition: transform 300ms ease-out, box-shadow 300ms ease-out;
+}
+.card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -20px rgba(28, 25, 23, 0.18);
+}
+
+/* Marquee for locations */
+@keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+.marquee-track {
+    animation: marquee 40s linear infinite;
 }
