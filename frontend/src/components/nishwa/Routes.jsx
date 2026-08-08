@@ -1,13 +1,8 @@
+import { Link } from "react-router-dom";
 import { ArrowRight, MapPin } from "lucide-react";
 import { SAMPLE_ROUTES, POPULAR_ROUTES } from "@/config/routes";
-import { BUSINESS } from "@/config/business";
 
 const inr = (n) => "₹" + n.toLocaleString("en-IN");
-
-const waLink = (from, to, extra = "") =>
-  `${BUSINESS.whatsappBase}?text=${encodeURIComponent(
-    `Hi Nishwa Tours, I want a one-way cab ${from} → ${to}.${extra ? " " + extra : ""}`
-  )}`;
 
 export default function Routes() {
   return (
@@ -43,7 +38,7 @@ export default function Routes() {
             <tbody className="text-[#16183F]">
               {SAMPLE_ROUTES.map((r, i) => (
                 <tr
-                  key={i}
+                  key={r.slug}
                   data-testid={`route-row-${i}`}
                   className={`${i % 2 === 0 ? "bg-white" : "bg-[#FBFAF7]"} border-t border-[#EEECFB] hover:bg-[#FFF1EB] transition-colors duration-200`}
                 >
@@ -58,14 +53,13 @@ export default function Routes() {
                   <td className="py-4 px-5 font-semibold">{inr(r.ertiga)}</td>
                   <td className="py-4 px-5 font-semibold">{inr(r.innova)}</td>
                   <td className="py-4 px-5">
-                    <a
-                      href={waLink(r.from, r.to, `${r.km} km. Please share options.`)}
-                      target="_blank" rel="noreferrer"
+                    <Link
+                      to={`/routes/${r.slug}`}
                       data-testid={`route-book-${i}`}
                       className="inline-flex items-center gap-1 text-[#FC5B22] font-semibold text-sm hover:underline"
                     >
                       Book Now <ArrowRight className="w-4 h-4" />
-                    </a>
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -77,7 +71,7 @@ export default function Routes() {
         <div className="mt-10 md:hidden grid gap-4">
           {SAMPLE_ROUTES.map((r, i) => (
             <div
-              key={i}
+              key={r.slug}
               data-testid={`route-card-${i}`}
               className="rounded-2xl border border-[#EEECFB] p-5 bg-white shadow-sm"
             >
@@ -92,27 +86,21 @@ export default function Routes() {
                 <FareCell label="Ertiga" value={inr(r.ertiga)} />
                 <FareCell label="Innova" value={inr(r.innova)} />
               </div>
-              <a
-                href={waLink(r.from, r.to, `${r.km} km. Please share options.`)}
-                target="_blank" rel="noreferrer"
+              <Link
+                to={`/routes/${r.slug}`}
                 className="btn-primary mt-4 inline-flex items-center justify-center gap-2 w-full py-3 rounded-full font-semibold text-sm"
               >
                 Book Now <ArrowRight className="w-4 h-4" />
-              </a>
+              </Link>
             </div>
           ))}
         </div>
 
         <p className="mt-6 text-center text-sm text-stone-500">
           Prices shown are indicative for sample routes.{" "}
-          <a
-            href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20please%20share%20fares%20for%20all%20routes.`}
-            target="_blank" rel="noreferrer"
-            data-testid="see-all-fares"
-            className="text-[#FC5B22] font-semibold hover:underline"
-          >
+          <Link to="/routes" data-testid="see-all-fares" className="text-[#FC5B22] font-semibold hover:underline">
             See fares for all routes →
-          </a>
+          </Link>
         </p>
 
         {/* -------- Popular One-Way Routes -------- */}
@@ -128,10 +116,9 @@ export default function Routes() {
 
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {POPULAR_ROUTES.map((r, i) => (
-            <a
-              key={i}
-              href={waLink(r.from, r.to)}
-              target="_blank" rel="noreferrer"
+            <Link
+              key={r.slug}
+              to={`/routes/${r.slug}`}
               data-testid={`popular-route-${i}`}
               className="group flex items-center justify-between gap-3 px-4 py-4 rounded-xl border border-[#EEECFB] bg-white hover:border-[#FC5B22] hover:bg-[#FFF1EB] transition-colors duration-200"
             >
@@ -140,19 +127,18 @@ export default function Routes() {
                 <span>{r.from} <span className="text-[#FC5B22]">→</span> {r.to}</span>
               </span>
               <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-[#FC5B22] group-hover:translate-x-1 transition-transform duration-200" />
-            </a>
+            </Link>
           ))}
         </div>
 
         <div className="mt-10 text-center">
-          <a
-            href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20please%20share%20the%20full%20route%20list.`}
-            target="_blank" rel="noreferrer"
+          <Link
+            to="/routes"
             data-testid="view-all-routes"
             className="btn-navy inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm"
           >
             View All Routes <ArrowRight className="w-4 h-4" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
