@@ -1,0 +1,120 @@
+{
+  "theme_strategy": "Warm Indian Road-Trip (Organic & Earthy + High Contrast). No default Vercel-look. Replaces sterile corporate blue with warm amber, cream, and deep charcoal. Emotionally evokes trust, safety, and a premium localized travel experience.",
+  "typography": {
+    "google_fonts_url": "https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&display=swap",
+    "headings": {
+      "family": "'Outfit', sans-serif",
+      "weights": "Light (300) for oversized text, SemiBold (600) for primary headings",
+      "style": "tracking-tight leading-none"
+    },
+    "body": {
+      "family": "'DM Sans', sans-serif",
+      "weights": "Regular (400), Medium (500)",
+      "style": "leading-relaxed"
+    },
+    "rules": [
+      "NO INTER, ROBOTO, OR POPPINS.",
+      "H1 size max text-5xl md:text-6xl. Do not exceed.",
+      "Overlines must be uppercase, tracking-[0.2em], tiny (text-xs)"
+    ]
+  },
+  "colors": {
+    "background": "#FDFBF7", 
+    "surface_white": "#FFFFFF",
+    "text_primary": "#1C1917", 
+    "text_secondary": "#57534E",
+    "primary_brand": "#D97706", 
+    "primary_hover": "#B45309",
+    "accent_whatsapp": "#25D366",
+    "border_light": "#E7E5E4",
+    "rules": [
+      "No full-screen purple gradients.",
+      "Never use pure black #000000, use text_primary #1C1917 instead.",
+      "CTA Buttons (Booking) should use primary_brand. WhatsApp CTAs must use accent_whatsapp."
+    ]
+  },
+  "visual_enhancers": {
+    "surface_strategy": "Solid Neumorphism. High-end surfaces with solid background colors and 1px delicate borders (border-border_light) to ground elements. Use soft, diffuse ambient shadows (shadow-sm or shadow-lg). No muddy transparent grays.",
+    "header": "Crystal Glass: backdrop-blur-xl bg-[#FDFBF7]/80 with a 1px solid bottom border border-stone-200. Never fully transparent.",
+    "borders": "Use subtle roundness, max 12px (rounded-xl) for cards, rounded-full for buttons."
+  },
+  "layouts": {
+    "hero_section": "Asymmetric Bento Grid (Mode A). Split the hero. Left side: Heavy text (Outfit font) + Booking form layered. Right side: Large rounded image of SUV on sunset road with subtle parallax.",
+    "services_grid": "High Density Grid. grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6. Cardless or 1px border flat cards. Left-aligned text.",
+    "fleet_showcase": "Horizontal wide cards on desktop (image on left, specs/price on right), stacked on mobile. Emphasize spaciousness with generous padding (p-8).",
+    "spacing_scale": "Use generous spacing. py-20 or py-24 for section paddings. gap-8 to gap-12 for flex/grid layouts."
+  },
+  "motion": {
+    "interactions": "Hover states on all interactive elements (translate-y-[-2px], shadow-md).",
+    "transitions": "Use specific properties: transition-transform duration-300 ease-out. NO transition-all."
+  },
+  "component_guidelines": {
+    "booking_form": "Floating solid surface card (bg-white shadow-xl rounded-2xl p-6 md:p-8). Use customized Shadcn Select and Input components. Form submission must save to DB AND open WhatsApp with pre-filled message.",
+    "whatsapp_button": "Sticky floating bottom-right. Must be highly visible, rounded-full, with pulse animation.",
+    "testimonials": "Carousel or Grid. Use large quote marks. Warm cream background cards.",
+    "why_choose_us": "Marquee strip or 4-column icon grid. Use Lucide icons (Shield, Clock, Map, CreditCard)."
+  },
+  "icons_and_assets": {
+    "library": "lucide-react",
+    "rules": "No AI emojis (🤖, etc)."
+  },
+  "image_urls": {
+    "hero_background_or_side": {
+      "url": "https://images.unsplash.com/photo-1564188537512-f6bd010d1e2a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwxfHxzdXYlMjBkcml2aW5nJTIwc3Vuc2V0JTIwcm9hZHxlbnwwfHx8fDE3ODYxODA5Njh8MA&ixlib=rb-4.1.0&q=85",
+      "description": "White SUV on sunset road, ideal for hero section imagery."
+    },
+    "fleet_suv": {
+      "url": "https://images.unsplash.com/photo-1661655335629-4056d80caa0a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwxfHx3aGl0ZSUyMHN1diUyMGNhciUyMHJvYWR8ZW58MHx8fHwxNzg2MTgwOTc2fDA&ixlib=rb-4.1.0&q=85",
+      "description": "White SUV parked, suitable for Innova/SUV fleet card."
+    },
+    "fleet_sedan": {
+      "url": "https://images.unsplash.com/photo-1555832438-e6ada221ff4d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwzfHxoaWdod2F5JTIwcm9hZCUyMHRyaXAlMjBzdW5zZXR8ZW58MHx8fHwxNzg2MTgwOTY4fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Grey sedan/SUV on highway, suitable for sedan fleet card."
+    },
+    "driver_testimonial": {
+      "url": "https://images.unsplash.com/photo-1473655587843-eda8944061e8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBjaGF1ZmZldXIlMjBzbWlsaW5nfGVufDB8fHx8MTc4NjE4MDk2OHww&ixlib=rb-4.1.0&q=85",
+      "description": "Professional driver smiling. Use for 'Verified Drivers' or testimonials."
+    },
+    "destination_monument": {
+      "url": "https://images.unsplash.com/photo-1587474260584-136574528ed5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwzfHxpbmRpYW4lMjBtb251bWVudCUyMGFyY2hpdGVjdHVyZSUyMHRyYXZlbHxlbnwwfHx8fDE3ODYxODA5Njh8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Indian monument/India gate architecture, use for Top Locations."
+    },
+    "destination_ahmedabad": {
+      "url": "https://images.unsplash.com/photo-1632671794713-6167b013168c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwyfHxhaG1lZGFiYWQlMjBjaXR5JTIwYXJjaGl0ZWN0dXJlfGVufDB8fHx8MTc4NjE4MDk3Nnww&ixlib=rb-4.1.0&q=85",
+      "description": "Ahmedabad city street with people, use for Top Locations (Ahmedabad)."
+    }
+  },
+  "instructions_to_main_agent": [
+    "Design a modern, single-page website for 'Nishwa Tours & Travels' based in Ahmedabad, Gujarat.",
+    "Contact Info: Phone/WhatsApp: 7600515130, Email: Nishwatours.travels@gmail.com",
+    "Header must be sticky with business name/logo, Phone CTA, and WhatsApp button. Never use a fully transparent background for the header. Use backdrop-blur-xl with a cream tinted background.",
+    "Hero Section: Tagline 'OneWay Ride Anytime — AnyWhere from Ahmedabad', CTA 'Book Now' (WhatsApp), and hero car imagery.",
+    "Booking Form: Must include Name, Phone, Car Type (Sedan, SUV, Ertiga, Innova Crysta), Trip Type (One Way, Round Trip), Pickup, Drop, Date. Save to DB AND redirect to WhatsApp with pre-filled message.",
+    "Services Grid: One Way Cab, Round Trip, Local Rental, Outstation, Airport Transfer.",
+    "Top Locations Grid: Ahmedabad, Baroda, Surat, Rajkot, Udaipur, Mumbai, Pune, Gandhidham.",
+    "Why Choose Us: 24/7, Verified Drivers, Best Rates, Neat Cars, Transparent Billing.",
+    "Fleet Showcase: Cards for Sedan, SUV, Ertiga, Innova Crysta with pricing/features.",
+    "Floating WhatsApp Button is mandatory.",
+    "Use data-testid on all interactive elements (e.g., data-testid='booking-submit-button').",
+    "DO NOT output any .tsx code. You must output .js / .jsx code as the environment uses JavaScript.",
+    "Use pure Tailwind CSS + provided Shadcn components (customize their appearance using Tailwind to match the theme).",
+    "Avoid AI slop (no AI emojis like 🚀🤖, no purple gradients). Use the provided Unsplash images.",
+    "Make it responsive. Mobile first."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) where appropriate, but prefer solid neumorphism for this project.",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯 etc for icons. Use lucide-react.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Create new components that match the style and conventions of existing components when needed.",
+    "Use `sonner` for toasts. Sonner component are located in /app/src/components/ui/sonner.jsx (or .tsx if applicable, but output .js)."
+  ]
+}
