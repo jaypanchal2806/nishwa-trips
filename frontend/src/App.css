@@ -1,26 +1,51 @@
-/* Nishwa Tours & Travels - Global App Styles */
+/* Nishwa Tours & Travels — Modern Jiya-inspired styles */
 
 .App {
     min-height: 100vh;
-    background: #FDFBF7;
+    background: #FFFFFF;
 }
 
-/* Prevent transition-all antipattern; use targeted transitions on components. */
-
+/* Primary CTA — Solid Orange */
 .btn-primary {
-    background: #D97706;
-    color: #FDFBF7;
+    background: var(--orange);
+    color: #FFFFFF;
     transition: background-color 300ms ease-out, transform 300ms ease-out, box-shadow 300ms ease-out;
 }
 .btn-primary:hover {
-    background: #B45309;
+    background: var(--orange-hover);
     transform: translateY(-2px);
-    box-shadow: 0 12px 24px -12px rgba(217, 119, 6, 0.5);
+    box-shadow: 0 12px 28px -12px rgba(252, 91, 34, 0.55);
 }
 
+/* Outline CTA — Orange border, transparent (Jiya-style Book Now) */
+.btn-outline-orange {
+    background: transparent;
+    color: #FFFFFF;
+    border: 2px solid var(--orange);
+    transition: background-color 300ms ease-out, transform 300ms ease-out, box-shadow 300ms ease-out, color 300ms ease-out;
+}
+.btn-outline-orange:hover {
+    background: var(--orange);
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -12px rgba(252, 91, 34, 0.55);
+}
+
+/* Navy pill button */
+.btn-navy {
+    background: var(--navy);
+    color: #FFFFFF;
+    transition: background-color 300ms ease-out, transform 300ms ease-out;
+}
+.btn-navy:hover {
+    background: #0F1132;
+    transform: translateY(-2px);
+}
+
+/* WhatsApp button */
 .btn-whatsapp {
-    background: #25D366;
-    color: #ffffff;
+    background: var(--whatsapp);
+    color: #FFFFFF;
     transition: background-color 300ms ease-out, transform 300ms ease-out, box-shadow 300ms ease-out;
 }
 .btn-whatsapp:hover {
@@ -29,19 +54,55 @@
     box-shadow: 0 12px 24px -12px rgba(37, 211, 102, 0.55);
 }
 
+/* Card lift */
 .card-lift {
-    transition: transform 300ms ease-out, box-shadow 300ms ease-out;
+    transition: transform 300ms ease-out, box-shadow 300ms ease-out, border-color 300ms ease-out;
 }
 .card-lift:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 40px -20px rgba(28, 25, 23, 0.18);
+    box-shadow: 0 20px 40px -20px rgba(22, 24, 63, 0.18);
 }
 
-/* Marquee for locations */
+/* Trip toggle pill (Jiya-style) */
+.trip-pill {
+    background: var(--lavender);
+    border-radius: 999px;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+.trip-pill button {
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-style: italic;
+    font-family: 'Ubuntu', sans-serif;
+    color: var(--navy);
+    transition: background-color 300ms ease-out, color 300ms ease-out;
+}
+.trip-pill button.is-active {
+    background: #FFFFFF;
+    color: var(--navy);
+    box-shadow: 0 6px 20px -8px rgba(22,24,63,0.25);
+}
+.trip-pill .or-badge {
+    width: 40px; height: 40px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: #FFFFFF;
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Marquee */
 @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
 }
-.marquee-track {
-    animation: marquee 40s linear infinite;
-}
+.marquee-track { animation: marquee 40s linear infinite; }

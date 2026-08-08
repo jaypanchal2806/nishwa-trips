@@ -3,7 +3,7 @@ import { BUSINESS, SERVICES } from "@/config/business";
 
 export default function Footer() {
   return (
-    <footer data-testid="site-footer" className="bg-[#1C1917] text-[#FDFBF7] pt-16 pb-8">
+    <footer data-testid="site-footer" className="bg-[#16183F] text-[#FFFFFF] pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="grid md:grid-cols-4 gap-10">
           {/* Brand */}
@@ -23,7 +23,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#F5B84B]">Services</div>
+            <div className="text-[11px] uppercase tracking-[0.22em] text-[#FC5B22]">Services</div>
             <ul className="mt-4 space-y-2 text-sm text-stone-300">
               {SERVICES.map((s) => (
                 <li key={s.key}><a href="#services" className="hover:text-white transition-colors">{s.title}</a></li>
@@ -33,11 +33,11 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#F5B84B]">Contact</div>
+            <div className="text-[11px] uppercase tracking-[0.22em] text-[#FC5B22]">Contact</div>
             <ul className="mt-4 space-y-3 text-sm text-stone-300">
-              <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-[#F5B84B]" /> <a href={`tel:${BUSINESS.phone}`} className="hover:text-white">{BUSINESS.phoneDisplay}</a></li>
-              <li className="flex items-center gap-2"><Mail  className="w-4 h-4 text-[#F5B84B]" /> <a href={`mailto:${BUSINESS.email}`} className="hover:text-white break-all">{BUSINESS.email}</a></li>
-              <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#F5B84B]" /> {BUSINESS.city}</li>
+              <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-[#FC5B22]" /> <a href={`tel:${BUSINESS.phone}`} className="hover:text-white">{BUSINESS.phoneDisplay}</a></li>
+              <li className="flex items-center gap-2"><Mail  className="w-4 h-4 text-[#FC5B22]" /> <a href={`mailto:${BUSINESS.email}`} className="hover:text-white break-all">{BUSINESS.email}</a></li>
+              <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#FC5B22]" /> {BUSINESS.city}</li>
             </ul>
           </div>
         </div>

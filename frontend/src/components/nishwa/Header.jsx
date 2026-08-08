@@ -23,7 +23,7 @@ export default function Header() {
   return (
     <header
       data-testid="site-header"
-      className={`sticky top-0 z-50 backdrop-blur-xl bg-[#FDFBF7]/85 border-b ${scrolled ? "border-stone-200 shadow-[0_2px_20px_-16px_rgba(28,25,23,0.35)]" : "border-transparent"}`}
+      className={`sticky top-0 z-50 backdrop-blur-xl bg-[#FFFFFF]/85 border-b ${scrolled ? "border-stone-200 shadow-[0_2px_20px_-16px_rgba(28,25,23,0.35)]" : "border-transparent"}`}
     >
       <div className="max-w-7xl mx-auto px-5 md:px-8 h-16 md:h-20 flex items-center justify-between">
         {/* Logo */}
@@ -48,7 +48,7 @@ export default function Header() {
               key={n.href}
               href={n.href}
               data-testid={`nav-${n.label.toLowerCase()}`}
-              className="text-sm text-stone-700 hover:text-[#D97706] transition-colors duration-200"
+              className="text-sm text-stone-700 hover:text-[#FC5B22] transition-colors duration-200"
             >
               {n.label}
             </a>
@@ -60,7 +60,7 @@ export default function Header() {
           <a
             href={`tel:${BUSINESS.phone}`}
             data-testid="header-call-btn"
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-stone-300 text-sm font-medium hover:border-[#D97706] hover:text-[#D97706] transition-colors duration-200"
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-stone-300 text-sm font-medium hover:border-[#FC5B22] hover:text-[#FC5B22] transition-colors duration-200"
           >
             <Phone className="w-4 h-4" /> {BUSINESS.phoneDisplay}
           </a>
@@ -86,14 +86,14 @@ export default function Header() {
 
       {/* Mobile menu */}
       {open && (
-        <div data-testid="mobile-menu" className="lg:hidden border-t border-stone-200 bg-[#FDFBF7]">
+        <div data-testid="mobile-menu" className="lg:hidden border-t border-stone-200 bg-[#FFFFFF]">
           <div className="px-5 py-4 flex flex-col gap-1">
             {NAV.map((n) => (
               <a
                 key={n.href}
                 href={n.href}
                 onClick={() => setOpen(false)}
-                className="py-2.5 text-[15px] text-stone-800 hover:text-[#D97706]"
+                className="py-2.5 text-[15px] text-stone-800 hover:text-[#FC5B22]"
               >
                 {n.label}
               </a>

@@ -6,8 +6,8 @@ export default function Contact() {
     <section id="contact" data-testid="contact-section" className="py-20 md:py-28 border-t border-stone-200">
       <div className="max-w-7xl mx-auto px-5 md:px-8 grid lg:grid-cols-2 gap-10 items-start">
         <div>
-          <div className="text-[11px] uppercase tracking-[0.22em] text-[#D97706] font-semibold">Get in touch</div>
-          <h2 className="font-display font-semibold text-3xl md:text-5xl mt-2 tracking-tight leading-[1.05]">
+          <div className="font-script text-[#FC5B22] text-3xl md:text-4xl">Get in touch</div>
+          <h2 className="font-display font-bold text-3xl md:text-5xl mt-1 tracking-tight leading-[1.05] text-[#16183F]">
             Talk to a real person, right now.
           </h2>
           <p className="text-stone-600 mt-4 leading-relaxed max-w-lg">
@@ -49,9 +49,9 @@ export default function Contact() {
 
         <div className="rounded-2xl overflow-hidden border border-stone-200 shadow-lg h-[420px] bg-white">
           <div className="h-full w-full grid place-items-center relative bg-[url('https://images.unsplash.com/photo-1632671794713-6167b013168c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzF8MHwxfHNlYXJjaHwyfHxhaG1lZGFiYWQlMjBjaXR5JTIwYXJjaGl0ZWN0dXJlfGVufDB8fHx8MTc4NjE4MDk3Nnww&ixlib=rb-4.1.0&q=85')] bg-cover bg-center">
-            <div className="absolute inset-0 bg-[#1C1917]/60" />
-            <div className="relative text-center text-[#FDFBF7] px-6">
-              <MapPin className="w-8 h-8 mx-auto text-[#F5B84B]" />
+            <div className="absolute inset-0 bg-[#16183F]/60" />
+            <div className="relative text-center text-[#FFFFFF] px-6">
+              <MapPin className="w-8 h-8 mx-auto text-[#FC5B22]" />
               <div className="font-display font-semibold text-2xl md:text-3xl mt-3">Based in Ahmedabad</div>
               <div className="text-sm mt-1.5 opacity-80">Gujarat, India · Serving 75+ cities</div>
               <a
@@ -76,7 +76,7 @@ function ContactCard({ icon, label, value, href, accent, testId }) {
       data-testid={testId}
       className={`rounded-2xl border p-5 flex items-start gap-3 card-lift ${accent ? "bg-[#25D366] text-white border-[#25D366]" : "bg-white border-stone-200 text-stone-900"}`}
     >
-      <div className={`w-10 h-10 rounded-xl grid place-items-center ${accent ? "bg-white/15" : "bg-[#FDF3E1] text-[#D97706]"}`}>
+      <div className={`w-10 h-10 rounded-xl grid place-items-center ${accent ? "bg-white/15" : "bg-[#FFF1EB] text-[#FC5B22]"}`}>
         {icon}
       </div>
       <div>

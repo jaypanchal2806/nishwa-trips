@@ -15,9 +15,9 @@ export default function Services() {
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
-            <div className="text-[11px] uppercase tracking-[0.22em] text-[#D97706] font-semibold">What we offer</div>
-            <h2 className="font-display font-semibold text-3xl md:text-5xl mt-2 tracking-tight leading-[1.05] max-w-2xl">
-              Cab services built for every kind of journey.
+            <div className="font-script text-[#FC5B22] text-3xl md:text-4xl">Cab services we offer</div>
+            <h2 className="font-display font-bold text-3xl md:text-5xl mt-1 tracking-tight leading-[1.05] max-w-2xl text-[#16183F]">
+              Built for every kind of journey.
             </h2>
           </div>
           <a
@@ -40,7 +40,7 @@ export default function Services() {
                 className="card-lift group relative rounded-2xl border border-stone-200 bg-white p-6 md:p-7 flex flex-col justify-between min-h-[220px]"
               >
                 <div>
-                  <div className="w-11 h-11 rounded-xl bg-[#FDF3E1] text-[#D97706] grid place-items-center">
+                  <div className="w-11 h-11 rounded-xl bg-[#FFF1EB] text-[#FC5B22] grid place-items-center">
                     <Icon className="w-5 h-5" />
                   </div>
                   <h3 className="font-display font-semibold text-xl mt-5">{s.title}</h3>
@@ -51,7 +51,7 @@ export default function Services() {
                   <a
                     href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20I%20need%20${encodeURIComponent(s.title)}.`}
                     target="_blank" rel="noreferrer"
-                    className="text-sm font-medium text-[#1C1917] group-hover:text-[#D97706] inline-flex items-center gap-1 transition-colors duration-200"
+                    className="text-sm font-medium text-[#16183F] group-hover:text-[#FC5B22] inline-flex items-center gap-1 transition-colors duration-200"
                   >
                     Enquire <ArrowUpRight className="w-4 h-4" />
                   </a>

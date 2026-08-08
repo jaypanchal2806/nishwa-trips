@@ -10,14 +10,14 @@ const IMGS = {
 
 export default function Fleet() {
   return (
-    <section id="fleet" data-testid="fleet-section" className="py-20 md:py-28 bg-[#1C1917] text-[#FDFBF7]">
+    <section id="fleet" data-testid="fleet-section" className="py-20 md:py-28 bg-[#16183F] text-[#FFFFFF]">
       <div className="max-w-7xl mx-auto px-5 md:px-8">
         <div className="max-w-2xl">
-          <div className="text-[11px] uppercase tracking-[0.22em] text-[#F5B84B] font-semibold">Our Fleet</div>
-          <h2 className="font-display font-semibold text-3xl md:text-5xl mt-2 tracking-tight leading-[1.05]">
+          <div className="font-script text-[#FC5B22] text-3xl md:text-4xl">Our Fleet</div>
+          <h2 className="font-display font-bold text-3xl md:text-5xl mt-1 tracking-tight leading-[1.05]">
             Pick a car that fits your journey.
           </h2>
-          <p className="text-stone-400 mt-3 leading-relaxed">
+          <p className="text-white/70 mt-3 leading-relaxed">
             From compact sedans to premium Innova Crysta — every car is well-maintained,
             sanitised and driven by our verified chauffeurs.
           </p>
@@ -28,7 +28,7 @@ export default function Fleet() {
             <article
               key={car.name}
               data-testid={`fleet-card-${car.name.toLowerCase().replace(/\s+/g,'-')}`}
-              className="card-lift group rounded-2xl overflow-hidden bg-[#26221F] border border-white/5 flex flex-col md:flex-row"
+              className="card-lift group rounded-2xl overflow-hidden bg-[#1B1F4B] border border-white/5 flex flex-col md:flex-row"
             >
               <div className="md:w-1/2 h-48 md:h-auto overflow-hidden">
                 <img
@@ -43,7 +43,7 @@ export default function Fleet() {
                   <div className="flex items-center justify-between">
                     <h3 className="font-display font-semibold text-xl">{car.name}</h3>
                     <span className="inline-flex items-center gap-1 text-xs bg-white/10 rounded-full px-2.5 py-1">
-                      <Star className="w-3 h-3 fill-current text-[#F5B84B]" /> 4.9
+                      <Star className="w-3 h-3 fill-current text-[#FC5B22]" /> 4.9
                     </span>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
@@ -55,7 +55,7 @@ export default function Fleet() {
                 <div className="mt-5 flex items-end justify-between">
                   <div>
                     <div className="text-[11px] uppercase tracking-[0.22em] text-stone-500">Starting</div>
-                    <div className="font-display font-semibold text-2xl text-[#F5B84B]">{car.price}</div>
+                    <div className="font-display font-semibold text-2xl text-[#FC5B22]">{car.price}</div>
                   </div>
                   <a
                     href={`${BUSINESS.whatsappBase}?text=Hi%20Nishwa%20Tours,%20I%20want%20to%20book%20a%20${encodeURIComponent(car.name)}.`}
@@ -77,7 +77,7 @@ export default function Fleet() {
 function Spec({ icon, label }) {
   return (
     <div className="flex items-center gap-2 text-stone-300">
-      <span className="text-[#F5B84B]">{icon}</span>
+      <span className="text-[#FC5B22]">{icon}</span>
       <span>{label}</span>
     </div>
   );

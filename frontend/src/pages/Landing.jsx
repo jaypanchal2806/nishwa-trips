@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Header from "@/components/nishwa/Header";
 import Hero from "@/components/nishwa/Hero";
 import Services from "@/components/nishwa/Services";
@@ -16,12 +16,11 @@ const API = `${BACKEND_URL}/api`;
 
 export default function Landing() {
   useEffect(() => {
-    // Warm up the backend on load
     axios.get(`${API}/`).catch(() => {});
   }, []);
 
   return (
-    <div data-testid="landing-page" className="min-h-screen bg-[#FDFBF7] text-[#1C1917]">
+    <div data-testid="landing-page" className="min-h-screen bg-white text-[#16183F]">
       <Header />
       <main>
         <Hero apiBase={API} />
