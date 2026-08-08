@@ -71,8 +71,15 @@ export default function Hero({ apiBase }) {
       <div className="max-w-7xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-16 md:pb-24 grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
         {/* Left: Text */}
         <div className="lg:col-span-7 fade-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1C1917] text-[#FDFBF7] text-[11px] uppercase tracking-[0.22em]">
-            <Sparkles className="w-3.5 h-3.5" /> Ahmedabad · Since {BUSINESS.established}
+          <div className="flex items-center gap-4 mb-6">
+            <img
+              src="/nishwa-logo.jpg"
+              alt="Nishwa Tours & Travels logo"
+              className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg ring-1 ring-stone-200"
+            />
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1C1917] text-[#FDFBF7] text-[11px] uppercase tracking-[0.22em]">
+              <Sparkles className="w-3.5 h-3.5" /> Ahmedabad · Since {BUSINESS.established}
+            </div>
           </div>
 
           <h1 className="font-display font-semibold text-4xl md:text-6xl leading-[1.02] tracking-tight mt-6">

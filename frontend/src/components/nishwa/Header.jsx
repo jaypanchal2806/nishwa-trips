@@ -27,12 +27,14 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto px-5 md:px-8 h-16 md:h-20 flex items-center justify-between">
         {/* Logo */}
-        <a href="#top" data-testid="brand-logo" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-[#1C1917] text-[#FDFBF7] grid place-items-center font-display font-bold text-lg group-hover:bg-[#D97706] transition-colors duration-300">
-            N
-          </div>
+        <a href="#top" data-testid="brand-logo" className="flex items-center gap-3 group">
+          <img
+            src="/nishwa-logo.jpg"
+            alt="Nishwa Tours & Travels"
+            className="w-11 h-11 md:w-12 md:h-12 rounded-xl object-cover ring-1 ring-stone-200"
+          />
           <div className="leading-tight">
-            <div className="font-display font-semibold text-[15px] md:text-base">Nishwa Tours</div>
+            <div className="font-display font-semibold text-[15px] md:text-base">Nishwa Tours &amp; Travels</div>
             <div className="text-[10px] md:text-[11px] uppercase tracking-[0.22em] text-stone-500 flex items-center gap-1">
               <MapPin className="w-3 h-3" /> Ahmedabad
             </div>

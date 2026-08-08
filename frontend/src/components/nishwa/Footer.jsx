@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-[#D97706] grid place-items-center font-display font-bold text-lg">N</div>
+              <img src="/nishwa-logo.jpg" alt="Nishwa Tours & Travels" className="w-14 h-14 rounded-xl object-cover ring-1 ring-white/10" />
               <div>
                 <div className="font-display font-semibold text-lg">{BUSINESS.name}</div>
                 <div className="text-[11px] uppercase tracking-[0.22em] text-stone-400">Ahmedabad · Est. {BUSINESS.established}</div>
