@@ -66,8 +66,16 @@ const OVERRIDES = {
 };
 
 // ---------- Build routes ----------
+// Extra slugs not in the sitemap that we want on the site
+const EXTRA_SLUGS = [
+  "ahmedabad-to-bharuch",
+  "ahmedabad-to-mumbai",
+];
+
+const ALL_SLUGS = Array.from(new Set([...ROUTE_SLUGS, ...EXTRA_SLUGS]));
+
 const built = [];
-for (const slug of ROUTE_SLUGS) {
+for (const slug of ALL_SLUGS) {
   const parts = splitSlug(slug);
   if (!parts) continue;
   const { fromSlug, toSlug } = parts;
@@ -114,16 +122,13 @@ export const ROUTE_BY_SLUG = Object.fromEntries(built.map((r) => [r.slug, r]));
 
 // ---------- Landing-page selections ----------
 
-// Sample routes shown on landing (uses exact-fare overrides)
+// Sample routes shown on landing (uses exact-fare overrides where available)
 export const SAMPLE_ROUTES = [
-  "abu-to-mumbai-airport",
-  "abu-to-thane",
-  "abu-to-mumbai-central",
-  "ahmedabad-to-malsar",
-  "ahmedabad-to-dhoraji",
-  "ahmedabad-to-naliya",
-  "ahmedabad-to-lunawada",
-  "ahmedabad-to-udaipur",
+  "ahmedabad-to-vadodara",
+  "ahmedabad-to-surat",
+  "ahmedabad-to-bharuch",
+  "ahmedabad-to-vapi",
+  "ahmedabad-to-mumbai",
 ].map((s) => ROUTE_BY_SLUG[s]).filter(Boolean);
 
 // Popular routes chip list on landing
