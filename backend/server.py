@@ -4,12 +4,14 @@ from fastapi import (
     APIRouter,
     HTTPException,
     Depends,
-    Security,
 )
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import (
+    HTTPBearer,
+    HTTPAuthorizationCredentials,
+)
 
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -76,7 +78,6 @@ if not ADMIN_PASSCODE:
 
 if not JWT_SECRET:
     missing_variables.append("JWT_SECRET")
-
 
 if missing_variables:
     raise RuntimeError(
@@ -165,12 +166,22 @@ api_router = APIRouter(
 
 
 # ============================================================
-# SWAGGER / JWT SECURITY
+# HTTP BEARER SECURITY
+# ============================================================
+#
+# IMPORTANT:
+# This creates the OpenAPI security scheme.
+# Swagger UI will automatically display the
+# "Authorize" button.
+#
+# DO NOT use Header() for the authorization token.
+#
 # ============================================================
 
 security = HTTPBearer(
     scheme_name="BearerAuth",
     description="Enter your JWT token",
+    auto_error=True,
 )
 
 
@@ -236,17 +247,11 @@ class Booking(BaseModel):
     )
 
     name: str
-
     phone: str
-
     car_type: str
-
     trip_type: str
-
     pickup: str
-
     drop: str
-
     travel_date: str
 
     message: str = ""
@@ -261,7 +266,6 @@ class Booking(BaseModel):
 class BookingUpdate(BaseModel):
 
     status: Optional[str] = None
-
     message: Optional[str] = None
 
 
@@ -273,7 +277,6 @@ class AdminLogin(BaseModel):
 class AdminToken(BaseModel):
 
     token: str
-
     expires_at: str
 
 
@@ -310,14 +313,31 @@ def create_admin_token() -> AdminToken:
 # ============================================================
 
 def require_admin(
-    credentials: HTTPAuthorizationCredentials = Security(security),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
     """
-    Verify JWT Bearer token.
+    Validate the JWT Bearer token.
 
-    Swagger UI automatically detects the HTTPBearer
-    security scheme and displays the Authorize button.
+    Swagger UI will send:
+
+        Authorization: Bearer <JWT_TOKEN>
+
+    automatically after clicking Authorize.
     """
+
+    if credentials is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Authentication required",
+        )
+
+    # HTTPBearer extracts ONLY the token.
+    #
+    # Example:
+    #
+    # Authorization: Bearer abc123
+    #
+    # credentials.credentials == "abc123"
 
     token = credentials.credentials.strip()
 
@@ -360,7 +380,7 @@ def require_admin(
 
 
 # ============================================================
-# ROOT HEALTH CHECK
+# ROOT HEALTH
 # ============================================================
 
 @app.get(
@@ -461,17 +481,14 @@ async def create_booking(
 
     document = booking.model_dump()
 
-    # Store datetime as ISO string
     document["created_at"] = (
         document["created_at"].isoformat()
     )
 
     try:
 
-        # Check MongoDB connection
         await client.admin.command("ping")
 
-        # Save booking
         result = await db.bookings.insert_one(
             document
         )
@@ -585,10 +602,7 @@ async def admin_list_bookings(
             "created_at"
         )
 
-        if isinstance(
-            created_at,
-            str,
-        ):
+        if isinstance(created_at, str):
 
             try:
 
@@ -667,10 +681,7 @@ async def admin_update_booking(
         "created_at"
     )
 
-    if isinstance(
-        created_at,
-        str,
-    ):
+    if isinstance(created_at, str):
 
         try:
 
@@ -777,7 +788,6 @@ async def admin_stats(
             detail=f"Could not calculate statistics: {str(exc)}",
         )
 
-    # Today's bookings
     today = datetime.now(
         timezone.utc
     ).strftime("%Y-%m-%d")
@@ -906,7 +916,6 @@ async def frontend_fallback(
     full_path: str,
 ):
 
-    # Never let React fallback handle API routes
     if full_path.startswith("api/"):
 
         raise HTTPException(
@@ -935,7 +944,6 @@ async def frontend_fallback(
             requested_file
         )
 
-    # React Router fallback
     return FileResponse(
         index_file
     )
