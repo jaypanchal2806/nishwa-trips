@@ -1,4 +1,3 @@
-```bash
 #!/usr/bin/env bash
 
 set -e
@@ -38,4 +37,3 @@ cd ..
 echo "========================================"
 echo "Build completed successfully"
 echo "========================================"
-```
