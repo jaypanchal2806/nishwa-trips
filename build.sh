@@ -1,3 +1,4 @@
+```bash
 #!/usr/bin/env bash
 
 set -e
@@ -7,20 +8,26 @@ echo "Starting Nishwa Tours & Travels build"
 echo "========================================"
 
 echo "Installing Python dependencies..."
+
 pip install --upgrade pip
 pip install -r backend/requirements.txt
 
-echo "Installing Node/Yarn dependencies..."
+echo "Installing React dependencies..."
+
 cd frontend
 
-corepack enable
-yarn install --frozen-lockfile
+rm -rf node_modules
+rm -f package-lock.json
+
+npm install --legacy-peer-deps
 
 echo "Building React application..."
-yarn build
+
+npm run build
 
 if [ ! -f "build/index.html" ]; then
     echo "ERROR: React build failed."
+    echo "frontend/build/index.html was not created."
     exit 1
 fi
 
@@ -31,3 +38,4 @@ cd ..
 echo "========================================"
 echo "Build completed successfully"
 echo "========================================"
+```
