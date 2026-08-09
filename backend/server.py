@@ -3,6 +3,7 @@ from fastapi import (
     APIRouter,
     HTTPException,
     Depends,
+    Security,
 )
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -37,16 +38,12 @@ FRONTEND_BUILD = PROJECT_ROOT / "frontend" / "build"
 
 
 # ============================================================
-# LOAD ENVIRONMENT VARIABLES
+# ENVIRONMENT
 # ============================================================
 
 load_dotenv(ROOT_DIR / ".env")
 load_dotenv(PROJECT_ROOT / ".env")
 
-
-# ============================================================
-# ENVIRONMENT VARIABLES
-# ============================================================
 
 MONGO_URL = os.getenv("MONGO_URL")
 DB_NAME = os.getenv("DB_NAME")
@@ -58,7 +55,7 @@ JWT_TTL_HOURS = 24 * 7
 
 
 # ============================================================
-# VALIDATE ENVIRONMENT VARIABLES
+# ENVIRONMENT VALIDATION
 # ============================================================
 
 missing_variables = []
@@ -74,6 +71,7 @@ if not ADMIN_PASSCODE:
 
 if not JWT_SECRET:
     missing_variables.append("JWT_SECRET")
+
 
 if missing_variables:
     raise RuntimeError(
@@ -109,13 +107,16 @@ db = client[DB_NAME]
 
 
 # ============================================================
-# FASTAPI APPLICATION
+# FASTAPI
 # ============================================================
 
 app = FastAPI(
     title="Nishwa Tours & Travels API",
     description="Booking API for Nishwa Tours & Travels",
     version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 
@@ -135,7 +136,7 @@ cors_value = os.getenv("CORS_ORIGINS")
 
 if cors_value:
     cors_origins = [
-        origin.strip()
+        origin.strip().rstrip("/")
         for origin in cors_value.split(",")
         if origin.strip()
     ]
@@ -157,29 +158,29 @@ app.add_middleware(
 # ============================================================
 
 api_router = APIRouter(
-    prefix="/api"
+    prefix="/api",
 )
 
 
 # ============================================================
-# SWAGGER HTTP BEARER SECURITY
+# SWAGGER BEARER SECURITY
 # ============================================================
 #
-# This creates the OpenAPI security scheme.
+# IMPORTANT:
 #
-# Swagger UI will show:
+# This MUST be HTTPBearer.
+#
+# FastAPI will automatically generate:
+#
+# components:
+#   securitySchemes:
+#     BearerAuth:
+#       type: http
+#       scheme: bearer
+#
+# Swagger UI will then show:
 #
 #     Authorize 🔒
-#
-# The user enters:
-#
-#     <JWT TOKEN>
-#
-# Swagger automatically sends:
-#
-#     Authorization: Bearer <JWT TOKEN>
-#
-# to protected endpoints.
 #
 # ============================================================
 
@@ -195,7 +196,6 @@ security = HTTPBearer(
 # ============================================================
 
 class BookingCreate(BaseModel):
-
     name: str = Field(
         ...,
         min_length=2,
@@ -242,7 +242,6 @@ class BookingCreate(BaseModel):
 
 
 class Booking(BaseModel):
-
     model_config = ConfigDict(
         extra="ignore"
     )
@@ -269,28 +268,50 @@ class Booking(BaseModel):
 
 
 class BookingUpdate(BaseModel):
-
     status: Optional[str] = None
     message: Optional[str] = None
 
 
 class AdminLogin(BaseModel):
-
     passcode: str
 
 
 class AdminToken(BaseModel):
-
     token: str
     expires_at: str
 
 
 # ============================================================
-# JWT - CREATE ADMIN TOKEN
+# DATE HELPER
+# ============================================================
+
+def normalize_created_at(document: dict) -> dict:
+    """
+    Convert MongoDB created_at string into datetime
+    so Pydantic response validation works correctly.
+    """
+
+    created_at = document.get("created_at")
+
+    if isinstance(created_at, str):
+        try:
+            document["created_at"] = datetime.fromisoformat(
+                created_at
+            )
+        except ValueError:
+            document["created_at"] = datetime.now(timezone.utc)
+
+    elif created_at is None:
+        document["created_at"] = datetime.now(timezone.utc)
+
+    return document
+
+
+# ============================================================
+# JWT CREATE TOKEN
 # ============================================================
 
 def create_admin_token() -> AdminToken:
-
     expires_at = (
         datetime.now(timezone.utc)
         + timedelta(hours=JWT_TTL_HOURS)
@@ -298,6 +319,8 @@ def create_admin_token() -> AdminToken:
 
     payload = {
         "sub": "admin",
+        "role": "admin",
+        "iat": datetime.now(timezone.utc),
         "exp": expires_at,
     }
 
@@ -314,26 +337,38 @@ def create_admin_token() -> AdminToken:
 
 
 # ============================================================
-# JWT - REQUIRE ADMIN
+# JWT REQUIRE ADMIN
 # ============================================================
 
 def require_admin(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials = Security(security),
 ):
     """
-    Validate JWT Bearer authentication.
+    Validate JWT Bearer token.
 
-    HTTPBearer automatically reads:
+    Swagger sends:
 
         Authorization: Bearer <JWT>
 
-    credentials.credentials contains ONLY the JWT token.
+    HTTPBearer extracts only the JWT token.
     """
 
     if credentials is None:
         raise HTTPException(
             status_code=401,
             detail="Authentication required",
+            headers={
+                "WWW-Authenticate": "Bearer"
+            },
+        )
+
+    if credentials.scheme.lower() != "bearer":
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid authentication scheme",
+            headers={
+                "WWW-Authenticate": "Bearer"
+            },
         )
 
     token = credentials.credentials.strip()
@@ -342,10 +377,12 @@ def require_admin(
         raise HTTPException(
             status_code=401,
             detail="Missing authentication token",
+            headers={
+                "WWW-Authenticate": "Bearer"
+            },
         )
 
     try:
-
         payload = jwt.decode(
             token,
             JWT_SECRET,
@@ -353,21 +390,24 @@ def require_admin(
         )
 
     except jwt.ExpiredSignatureError:
-
         raise HTTPException(
             status_code=401,
-            detail="Token expired",
+            detail="Token expired. Please login again.",
+            headers={
+                "WWW-Authenticate": "Bearer"
+            },
         )
 
     except jwt.InvalidTokenError:
-
         raise HTTPException(
             status_code=401,
-            detail="Invalid token",
+            detail="Invalid authentication token",
+            headers={
+                "WWW-Authenticate": "Bearer"
+            },
         )
 
     if payload.get("sub") != "admin":
-
         raise HTTPException(
             status_code=403,
             detail="Admin access required",
@@ -466,11 +506,24 @@ async def database_health():
 @api_router.post(
     "/bookings",
     response_model=Booking,
+    status_code=201,
     tags=["Bookings"],
 )
 async def create_booking(
     payload: BookingCreate,
 ):
+
+    # Validate travel date format
+    try:
+        datetime.strptime(
+            payload.travel_date,
+            "%Y-%m-%d",
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail="travel_date must be in YYYY-MM-DD format",
+        )
 
     booking = Booking(
         **payload.model_dump()
@@ -483,8 +536,6 @@ async def create_booking(
     )
 
     try:
-
-        await client.admin.command("ping")
 
         result = await db.bookings.insert_one(
             document
@@ -506,7 +557,7 @@ async def create_booking(
 
         raise HTTPException(
             status_code=500,
-            detail=f"Could not save booking: {str(exc)}",
+            detail="Could not save booking",
         )
 
     return booking
@@ -529,10 +580,14 @@ async def admin_login(
 
         raise HTTPException(
             status_code=401,
-            detail="Invalid passcode",
+            detail="Invalid admin passcode",
         )
 
-    return create_admin_token()
+    token = create_admin_token()
+
+    logger.info("Admin login successful")
+
+    return token
 
 
 # ============================================================
@@ -550,11 +605,12 @@ async def admin_me(
     return {
         "ok": True,
         "role": "admin",
+        "message": "Authenticated successfully",
     }
 
 
 # ============================================================
-# ADMIN - LIST BOOKINGS
+# ADMIN LIST BOOKINGS
 # ============================================================
 
 @api_router.get(
@@ -590,36 +646,19 @@ async def admin_list_bookings(
 
         raise HTTPException(
             status_code=500,
-            detail=f"Could not retrieve bookings: {str(exc)}",
+            detail="Could not retrieve bookings",
         )
 
-    for document in documents:
-
-        created_at = document.get(
-            "created_at"
-        )
-
-        if isinstance(created_at, str):
-
-            try:
-
-                document["created_at"] = (
-                    datetime.fromisoformat(
-                        created_at
-                    )
-                )
-
-            except ValueError:
-
-                document["created_at"] = (
-                    datetime.now(timezone.utc)
-                )
+    documents = [
+        normalize_created_at(document)
+        for document in documents
+    ]
 
     return documents
 
 
 # ============================================================
-# ADMIN - UPDATE BOOKING
+# ADMIN UPDATE BOOKING
 # ============================================================
 
 @api_router.patch(
@@ -646,6 +685,25 @@ async def admin_update_booking(
             detail="No fields to update",
         )
 
+    allowed_statuses = {
+        "new",
+        "confirmed",
+        "completed",
+        "cancelled",
+    }
+
+    if (
+        "status" in updates
+        and updates["status"] not in allowed_statuses
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Invalid status. Allowed values: "
+                "new, confirmed, completed, cancelled"
+            ),
+        )
+
     try:
 
         result = await db.bookings.find_one_and_update(
@@ -664,7 +722,7 @@ async def admin_update_booking(
 
         raise HTTPException(
             status_code=500,
-            detail=f"Could not update booking: {str(exc)}",
+            detail="Could not update booking",
         )
 
     if not result:
@@ -674,31 +732,13 @@ async def admin_update_booking(
             detail="Booking not found",
         )
 
-    created_at = result.get(
-        "created_at"
-    )
-
-    if isinstance(created_at, str):
-
-        try:
-
-            result["created_at"] = (
-                datetime.fromisoformat(
-                    created_at
-                )
-            )
-
-        except ValueError:
-
-            result["created_at"] = (
-                datetime.now(timezone.utc)
-            )
+    result = normalize_created_at(result)
 
     return result
 
 
 # ============================================================
-# ADMIN - DELETE BOOKING
+# ADMIN DELETE BOOKING
 # ============================================================
 
 @api_router.delete(
@@ -725,7 +765,7 @@ async def admin_delete_booking(
 
         raise HTTPException(
             status_code=500,
-            detail=f"Could not delete booking: {str(exc)}",
+            detail="Could not delete booking",
         )
 
     if result.deleted_count == 0:
@@ -737,12 +777,13 @@ async def admin_delete_booking(
 
     return {
         "ok": True,
-        "message": "Booking deleted",
+        "message": "Booking deleted successfully",
+        "booking_id": booking_id,
     }
 
 
 # ============================================================
-# ADMIN - STATISTICS
+# ADMIN STATISTICS
 # ============================================================
 
 @api_router.get(
@@ -782,9 +823,10 @@ async def admin_stats(
 
         raise HTTPException(
             status_code=500,
-            detail=f"Could not calculate statistics: {str(exc)}",
+            detail="Could not calculate statistics",
         )
 
+    # Current UTC date
     today = datetime.now(
         timezone.utc
     ).strftime("%Y-%m-%d")
@@ -811,8 +853,15 @@ async def admin_stats(
                 isinstance(created_at, str)
                 and created_at.startswith(today)
             ):
-
                 today_count += 1
+
+            elif isinstance(created_at, datetime):
+
+                if created_at.astimezone(
+                    timezone.utc
+                ).strftime("%Y-%m-%d") == today:
+
+                    today_count += 1
 
     except Exception as exc:
 
@@ -823,10 +872,7 @@ async def admin_stats(
 
         raise HTTPException(
             status_code=500,
-            detail=(
-                "Could not calculate today's bookings: "
-                + str(exc)
-            ),
+            detail="Could not calculate today's bookings",
         )
 
     return {
@@ -868,7 +914,7 @@ if FRONTEND_BUILD.exists():
         app.mount(
             "/static",
             StaticFiles(
-                directory=static_directory
+                directory=static_directory,
             ),
             name="static",
         )
@@ -885,7 +931,10 @@ else:
 # FRONTEND ROOT
 # ============================================================
 
-@app.get("/")
+@app.get(
+    "/",
+    include_in_schema=False,
+)
 async def frontend_root():
 
     index_file = (
@@ -908,17 +957,32 @@ async def frontend_root():
 # REACT SPA FALLBACK
 # ============================================================
 
-@app.get("/{full_path:path}")
+@app.get(
+    "/{full_path:path}",
+    include_in_schema=False,
+)
 async def frontend_fallback(
     full_path: str,
 ):
 
-    # Never let React fallback handle API routes
+    # Never handle API routes here
     if full_path.startswith("api/"):
 
         raise HTTPException(
             status_code=404,
             detail="API endpoint not found",
+        )
+
+    # Never interfere with Swagger/OpenAPI
+    if full_path in {
+        "docs",
+        "redoc",
+        "openapi.json",
+    }:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Not found",
         )
 
     index_file = (
@@ -942,9 +1006,52 @@ async def frontend_fallback(
             requested_file
         )
 
+    # React Router fallback
     return FileResponse(
         index_file
     )
+
+
+# ============================================================
+# STARTUP
+# ============================================================
+
+@app.on_event("startup")
+async def startup():
+
+    logger.info(
+        "Starting Nishwa Tours & Travels API"
+    )
+
+    logger.info(
+        "Database: %s",
+        DB_NAME,
+    )
+
+    logger.info(
+        "Frontend build: %s",
+        FRONTEND_BUILD,
+    )
+
+    logger.info(
+        "Frontend exists: %s",
+        FRONTEND_BUILD.exists(),
+    )
+
+    try:
+
+        await client.admin.command("ping")
+
+        logger.info(
+            "MongoDB connection successful"
+        )
+
+    except Exception as exc:
+
+        logger.error(
+            "MongoDB connection failed: %s",
+            exc,
+        )
 
 
 # ============================================================
