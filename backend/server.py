@@ -99,11 +99,19 @@ logger = logging.getLogger("nishwa-travels")
 # MONGODB
 # ============================================================
 
+# MongoDB Atlas connection.
+#
+# tls=True is explicitly enabled for mongodb+srv connections.
+# retryWrites and retryReads improve reliability on Render.
+
 client = AsyncIOMotorClient(
     MONGO_URL,
-    serverSelectionTimeoutMS=5000,
-    connectTimeoutMS=5000,
-    socketTimeoutMS=10000,
+    tls=True,
+    retryWrites=True,
+    retryReads=True,
+    serverSelectionTimeoutMS=10000,
+    connectTimeoutMS=10000,
+    socketTimeoutMS=20000,
 )
 
 db = client[DB_NAME]
@@ -400,10 +408,11 @@ async def database_health():
     except Exception as exc:
 
         logger.exception(
-            "MongoDB health check failed: %s",
-            exc,
+            "MongoDB health check failed"
         )
 
+        # Return the real MongoDB error so Render logs
+        # and browser testing can identify the problem.
         raise HTTPException(
             status_code=503,
             detail=f"Database connection failed: {str(exc)}",
@@ -428,13 +437,14 @@ async def create_booking(
 
     document = booking.model_dump()
 
+    # Store datetime as ISO string.
     document["created_at"] = (
         document["created_at"].isoformat()
     )
 
     try:
 
-        # Test database connection before insert
+        # Verify MongoDB before inserting.
         await client.admin.command("ping")
 
         result = await db.bookings.insert_one(
@@ -442,8 +452,7 @@ async def create_booking(
         )
 
         logger.info(
-            "Booking created successfully. "
-            "booking_id=%s mongo_id=%s",
+            "Booking created successfully: %s | Mongo ID: %s",
             booking.id,
             result.inserted_id,
         )
@@ -451,8 +460,7 @@ async def create_booking(
     except Exception as exc:
 
         logger.exception(
-            "Failed to create booking: %s",
-            exc,
+            "Failed to create booking"
         )
 
         raise HTTPException(
@@ -530,8 +538,7 @@ async def admin_list_bookings(
     except Exception as exc:
 
         logger.exception(
-            "Failed to retrieve bookings: %s",
-            exc,
+            "Failed to retrieve bookings"
         )
 
         raise HTTPException(
@@ -541,21 +548,14 @@ async def admin_list_bookings(
 
     for document in documents:
 
-        created_at = document.get(
-            "created_at"
-        )
+        created_at = document.get("created_at")
 
-        if isinstance(
-            created_at,
-            str,
-        ):
+        if isinstance(created_at, str):
 
             try:
 
                 document["created_at"] = (
-                    datetime.fromisoformat(
-                        created_at
-                    )
+                    datetime.fromisoformat(created_at)
                 )
 
             except ValueError:
@@ -606,8 +606,7 @@ async def admin_update_booking(
     except Exception as exc:
 
         logger.exception(
-            "Failed to update booking: %s",
-            exc,
+            "Failed to update booking"
         )
 
         raise HTTPException(
@@ -622,17 +621,14 @@ async def admin_update_booking(
             detail="Booking not found",
         )
 
-    if isinstance(
-        result.get("created_at"),
-        str,
-    ):
+    created_at = result.get("created_at")
+
+    if isinstance(created_at, str):
 
         try:
 
             result["created_at"] = (
-                datetime.fromisoformat(
-                    result["created_at"]
-                )
+                datetime.fromisoformat(created_at)
             )
 
         except ValueError:
@@ -665,8 +661,7 @@ async def admin_delete_booking(
     except Exception as exc:
 
         logger.exception(
-            "Failed to delete booking: %s",
-            exc,
+            "Failed to delete booking"
         )
 
         raise HTTPException(
@@ -691,9 +686,7 @@ async def admin_delete_booking(
 # ADMIN - STATISTICS
 # ============================================================
 
-@api_router.get(
-    "/admin/stats"
-)
+@api_router.get("/admin/stats")
 async def admin_stats(
     _: str = Depends(require_admin),
 ):
@@ -721,8 +714,7 @@ async def admin_stats(
     except Exception as exc:
 
         logger.exception(
-            "Failed to calculate statistics: %s",
-            exc,
+            "Failed to calculate statistics"
         )
 
         raise HTTPException(
@@ -748,27 +740,26 @@ async def admin_stats(
 
         async for document in cursor:
 
-            created_at = document.get(
-                "created_at"
-            )
+            created_at = document.get("created_at")
 
             if (
                 isinstance(created_at, str)
                 and created_at.startswith(today)
             ):
-
                 today_count += 1
 
     except Exception as exc:
 
         logger.exception(
-            "Failed to calculate today's bookings: %s",
-            exc,
+            "Failed to calculate today's bookings"
         )
 
         raise HTTPException(
             status_code=500,
-            detail=f"Could not calculate today's bookings: {str(exc)}",
+            detail=(
+                "Could not calculate today's bookings: "
+                + str(exc)
+            ),
         )
 
     return {
@@ -785,9 +776,7 @@ async def admin_stats(
 # INCLUDE API ROUTER
 # ============================================================
 
-app.include_router(
-    api_router
-)
+app.include_router(api_router)
 
 
 # ============================================================
@@ -801,9 +790,7 @@ if FRONTEND_BUILD.exists():
         FRONTEND_BUILD,
     )
 
-    static_directory = (
-        FRONTEND_BUILD / "static"
-    )
+    static_directory = FRONTEND_BUILD / "static"
 
     if static_directory.exists():
 
@@ -830,15 +817,11 @@ else:
 @app.get("/")
 async def frontend_root():
 
-    index_file = (
-        FRONTEND_BUILD / "index.html"
-    )
+    index_file = FRONTEND_BUILD / "index.html"
 
     if index_file.exists():
 
-        return FileResponse(
-            index_file
-        )
+        return FileResponse(index_file)
 
     return {
         "message": "Nishwa Tours & Travels API is running",
@@ -855,9 +838,7 @@ async def frontend_fallback(
     full_path: str,
 ):
 
-    # Never allow the frontend fallback
-    # to intercept API requests.
-
+    # Never let React handle API routes.
     if full_path.startswith("api/"):
 
         raise HTTPException(
@@ -865,9 +846,7 @@ async def frontend_fallback(
             detail="API endpoint not found",
         )
 
-    index_file = (
-        FRONTEND_BUILD / "index.html"
-    )
+    index_file = FRONTEND_BUILD / "index.html"
 
     if not index_file.exists():
 
@@ -876,20 +855,14 @@ async def frontend_fallback(
             detail="Frontend build not found",
         )
 
-    requested_file = (
-        FRONTEND_BUILD / full_path
-    )
+    requested_file = FRONTEND_BUILD / full_path
 
     if requested_file.is_file():
 
-        return FileResponse(
-            requested_file
-        )
+        return FileResponse(requested_file)
 
-    # React Router fallback
-    return FileResponse(
-        index_file
-    )
+    # React Router fallback.
+    return FileResponse(index_file)
 
 
 # ============================================================
