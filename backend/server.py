@@ -1,4 +1,3 @@
-```python
 from fastapi import (
     FastAPI,
     APIRouter,
@@ -877,4 +876,3 @@ async def shutdown():
     )
 
     client.close()
-```
