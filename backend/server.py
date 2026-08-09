@@ -1,27 +1,44 @@
-```python
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
+from fastapi import (
+    FastAPI,
+    APIRouter,
+    HTTPException,
+    Depends,
+    Header,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+
 from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import ReturnDocument
+
+from pydantic import BaseModel, Field, ConfigDict
+
+from typing import List, Optional
+from pathlib import Path
+
+from datetime import datetime, timezone, timedelta
 
 import os
 import logging
-from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
 import uuid
-from datetime import datetime, timezone, timedelta
 import jwt
 
 
 # ============================================================
-# PATHS / ENVIRONMENT
+# PATHS
 # ============================================================
 
 ROOT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT_DIR.parent
+
+FRONTEND_BUILD = PROJECT_ROOT / "frontend" / "build"
+
+
+# ============================================================
+# LOAD ENVIRONMENT
+# ============================================================
 
 load_dotenv(ROOT_DIR / ".env")
 load_dotenv(PROJECT_ROOT / ".env")
@@ -31,26 +48,38 @@ load_dotenv(PROJECT_ROOT / ".env")
 # ENVIRONMENT VARIABLES
 # ============================================================
 
-MONGO_URL = os.environ.get("MONGO_URL")
-DB_NAME = os.environ.get("DB_NAME")
-ADMIN_PASSCODE = os.environ.get("ADMIN_PASSCODE")
-JWT_SECRET = os.environ.get("JWT_SECRET")
+MONGO_URL = os.getenv("MONGO_URL")
+DB_NAME = os.getenv("DB_NAME")
+ADMIN_PASSCODE = os.getenv("ADMIN_PASSCODE")
+JWT_SECRET = os.getenv("JWT_SECRET")
 
-JWT_ALG = "HS256"
+JWT_ALGORITHM = "HS256"
 JWT_TTL_HOURS = 24 * 7
 
 
+# ============================================================
+# VALIDATE REQUIRED ENVIRONMENT VARIABLES
+# ============================================================
+
+missing_variables = []
+
 if not MONGO_URL:
-    raise RuntimeError("MONGO_URL environment variable is missing")
+    missing_variables.append("MONGO_URL")
 
 if not DB_NAME:
-    raise RuntimeError("DB_NAME environment variable is missing")
+    missing_variables.append("DB_NAME")
 
 if not ADMIN_PASSCODE:
-    raise RuntimeError("ADMIN_PASSCODE environment variable is missing")
+    missing_variables.append("ADMIN_PASSCODE")
 
 if not JWT_SECRET:
-    raise RuntimeError("JWT_SECRET environment variable is missing")
+    missing_variables.append("JWT_SECRET")
+
+if missing_variables:
+    raise RuntimeError(
+        "Missing required environment variables: "
+        + ", ".join(missing_variables)
+    )
 
 
 # ============================================================
@@ -59,53 +88,73 @@ if not JWT_SECRET:
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("nishwa-travels")
 
 
 # ============================================================
 # MONGODB
 # ============================================================
 
-client = AsyncIOMotorClient(MONGO_URL)
+client = AsyncIOMotorClient(
+    MONGO_URL,
+    serverSelectionTimeoutMS=5000,
+)
+
 db = client[DB_NAME]
 
 
 # ============================================================
-# FASTAPI APP
+# FASTAPI
 # ============================================================
 
 app = FastAPI(
     title="Nishwa Tours & Travels API",
+    description="Booking API for Nishwa Tours & Travels",
     version="1.0.0",
 )
-
-api_router = APIRouter(prefix="/api")
 
 
 # ============================================================
 # CORS
 # ============================================================
 
-cors_origins = os.environ.get(
-    "CORS_ORIGINS",
-    "https://nishwatoursandtravels.in,"
-    "https://www.nishwatoursandtravels.in,"
-    "https://nishwa-trips.onrender.com,"
+default_origins = [
+    "https://nishwatoursandtravels.in",
+    "https://www.nishwatoursandtravels.in",
+    "https://nishwa-trips.onrender.com",
     "http://localhost:3000",
-).split(",")
+]
 
-cors_origins = [origin.strip() for origin in cors_origins if origin.strip()]
+cors_value = os.getenv("CORS_ORIGINS")
+
+if cors_value:
+    cors_origins = [
+        origin.strip()
+        for origin in cors_value.split(",")
+        if origin.strip()
+    ]
+else:
+    cors_origins = default_origins
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
     allow_origins=cors_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+
+# ============================================================
+# API ROUTER
+# ============================================================
+
+api_router = APIRouter(
+    prefix="/api"
 )
 
 
@@ -114,22 +163,45 @@ app.add_middleware(
 # ============================================================
 
 class BookingCreate(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100)
-    phone: str = Field(..., min_length=6, max_length=20)
+    name: str = Field(
+        ...,
+        min_length=2,
+        max_length=100,
+    )
+
+    phone: str = Field(
+        ...,
+        min_length=6,
+        max_length=20,
+    )
+
     car_type: str = Field(
         ...,
         description="Swift Dzire | Ertiga | Innova Crysta",
     )
+
     trip_type: str = Field(
         ...,
         description="One Way | Round Trip",
     )
-    pickup: str = Field(..., min_length=2, max_length=200)
-    drop: str = Field(..., min_length=2, max_length=200)
+
+    pickup: str = Field(
+        ...,
+        min_length=2,
+        max_length=200,
+    )
+
+    drop: str = Field(
+        ...,
+        min_length=2,
+        max_length=200,
+    )
+
     travel_date: str = Field(
         ...,
         description="YYYY-MM-DD",
     )
+
     message: Optional[str] = Field(
         default="",
         max_length=500,
@@ -137,7 +209,10 @@ class BookingCreate(BaseModel):
 
 
 class Booking(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+
+    model_config = ConfigDict(
+        extra="ignore"
+    )
 
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4())
@@ -152,6 +227,7 @@ class Booking(BaseModel):
     travel_date: str
 
     message: str = ""
+
     status: str = "new"
 
     created_at: datetime = Field(
@@ -160,59 +236,66 @@ class Booking(BaseModel):
 
 
 class BookingUpdate(BaseModel):
+
     status: Optional[str] = None
+
     message: Optional[str] = None
 
 
 class AdminLogin(BaseModel):
+
     passcode: str
 
 
 class AdminToken(BaseModel):
+
     token: str
+
     expires_at: str
 
 
 # ============================================================
-# AUTH HELPERS
+# JWT
 # ============================================================
 
-def make_token() -> AdminToken:
-    exp = datetime.now(timezone.utc) + timedelta(
-        hours=JWT_TTL_HOURS
+def create_admin_token() -> AdminToken:
+
+    expires_at = (
+        datetime.now(timezone.utc)
+        + timedelta(hours=JWT_TTL_HOURS)
     )
 
     payload = {
         "sub": "admin",
-        "exp": exp,
+        "exp": expires_at,
     }
 
     token = jwt.encode(
         payload,
         JWT_SECRET,
-        algorithm=JWT_ALG,
+        algorithm=JWT_ALGORITHM,
     )
 
     return AdminToken(
         token=token,
-        expires_at=exp.isoformat(),
+        expires_at=expires_at.isoformat(),
     )
 
 
 def require_admin(
     authorization: Optional[str] = Header(None),
-) -> str:
+):
 
     if not authorization:
         raise HTTPException(
             status_code=401,
-            detail="Missing Bearer token",
+            detail="Missing Authorization header",
         )
 
     if not authorization.lower().startswith("bearer "):
         raise HTTPException(
             status_code=401,
-            detail="Invalid authorization format",
+            detail="Invalid Authorization format",
         )
 
     token = authorization.split(
@@ -220,53 +303,117 @@ def require_admin(
         1,
     )[1].strip()
 
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Missing token",
+        )
+
     try:
+
         payload = jwt.decode(
             token,
             JWT_SECRET,
-            algorithms=[JWT_ALG],
+            algorithms=[JWT_ALGORITHM],
         )
 
     except jwt.ExpiredSignatureError:
+
         raise HTTPException(
             status_code=401,
             detail="Token expired",
         )
 
     except jwt.InvalidTokenError:
+
         raise HTTPException(
             status_code=401,
             detail="Invalid token",
         )
 
     if payload.get("sub") != "admin":
+
         raise HTTPException(
             status_code=401,
-            detail="Invalid subject",
+            detail="Invalid token subject",
         )
 
     return "admin"
 
 
 # ============================================================
-# PUBLIC API ROUTES
+# ROOT HEALTH CHECK
+# ============================================================
+
+@app.get("/health")
+async def root_health():
+
+    return {
+        "status": "healthy",
+        "service": "Nishwa Tours & Travels API",
+        "database": "configured",
+        "frontend_build": FRONTEND_BUILD.exists(),
+    }
+
+
+# ============================================================
+# API ROOT
 # ============================================================
 
 @api_router.get("/")
 async def api_root():
+
     return {
         "message": "Nishwa Tours & Travels API is running",
         "status": "ok",
     }
 
 
+# ============================================================
+# API HEALTH
+# ============================================================
+
 @api_router.get("/health")
-async def health():
+async def api_health():
+
     return {
         "status": "healthy",
         "service": "Nishwa Tours & Travels API",
     }
 
+
+# ============================================================
+# DATABASE HEALTH
+# ============================================================
+
+@api_router.get("/health/db")
+async def database_health():
+
+    try:
+
+        await client.admin.command("ping")
+
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "db_name": DB_NAME,
+        }
+
+    except Exception as exc:
+
+        logger.exception(
+            "MongoDB health check failed"
+        )
+
+        raise HTTPException(
+            status_code=503,
+            detail="Database connection failed",
+        )
+
+
+# ============================================================
+# CREATE BOOKING
+# ============================================================
 
 @api_router.post(
     "/bookings",
@@ -280,18 +427,27 @@ async def create_booking(
         **payload.model_dump()
     )
 
-    doc = booking.model_dump()
+    document = booking.model_dump()
 
-    doc["created_at"] = doc["created_at"].isoformat()
+    document["created_at"] = (
+        document["created_at"].isoformat()
+    )
 
     try:
 
-        await db.bookings.insert_one(doc)
+        await db.bookings.insert_one(
+            document
+        )
 
-    except Exception as e:
+        logger.info(
+            "Booking created: %s",
+            booking.id,
+        )
+
+    except Exception:
 
         logger.exception(
-            "Failed to save booking"
+            "Failed to create booking"
         )
 
         raise HTTPException(
@@ -303,7 +459,7 @@ async def create_booking(
 
 
 # ============================================================
-# ADMIN ROUTES
+# ADMIN LOGIN
 # ============================================================
 
 @api_router.post(
@@ -321,8 +477,12 @@ async def admin_login(
             detail="Invalid passcode",
         )
 
-    return make_token()
+    return create_admin_token()
 
+
+# ============================================================
+# ADMIN ME
+# ============================================================
 
 @api_router.get("/admin/me")
 async def admin_me(
@@ -335,6 +495,10 @@ async def admin_me(
     }
 
 
+# ============================================================
+# ADMIN - LIST BOOKINGS
+# ============================================================
+
 @api_router.get(
     "/admin/bookings",
     response_model=List[Booking],
@@ -343,32 +507,63 @@ async def admin_list_bookings(
     _: str = Depends(require_admin),
 ):
 
-    docs = await db.bookings.find(
-        {},
-        {"_id": 0},
-    ).sort(
-        "created_at",
-        -1,
-    ).to_list(2000)
+    try:
 
-    for doc in docs:
+        documents = await (
+            db.bookings
+            .find(
+                {},
+                {"_id": 0},
+            )
+            .sort(
+                "created_at",
+                -1,
+            )
+            .to_list(2000)
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Failed to retrieve bookings"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not retrieve bookings",
+        )
+
+    for document in documents:
+
+        created_at = document.get(
+            "created_at"
+        )
 
         if isinstance(
-            doc.get("created_at"),
+            created_at,
             str,
         ):
 
             try:
 
-                doc["created_at"] = datetime.fromisoformat(
-                    doc["created_at"]
+                document["created_at"] = (
+                    datetime.fromisoformat(
+                        created_at
+                    )
                 )
 
-            except Exception:
-                pass
+            except ValueError:
 
-    return docs
+                document["created_at"] = (
+                    datetime.now(timezone.utc)
+                )
 
+    return documents
+
+
+# ============================================================
+# ADMIN - UPDATE BOOKING
+# ============================================================
 
 @api_router.patch(
     "/admin/bookings/{booking_id}",
@@ -393,11 +588,25 @@ async def admin_update_booking(
             detail="No fields to update",
         )
 
-    result = await db.bookings.find_one_and_update(
-        {"id": booking_id},
-        {"$set": updates},
-        return_document=True,
-    )
+    try:
+
+        result = await db.bookings.find_one_and_update(
+            {"id": booking_id},
+            {"$set": updates},
+            projection={"_id": 0},
+            return_document=ReturnDocument.AFTER,
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Failed to update booking"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update booking",
+        )
 
     if not result:
 
@@ -406,8 +615,6 @@ async def admin_update_booking(
             detail="Booking not found",
         )
 
-    result.pop("_id", None)
-
     if isinstance(
         result.get("created_at"),
         str,
@@ -415,15 +622,24 @@ async def admin_update_booking(
 
         try:
 
-            result["created_at"] = datetime.fromisoformat(
-                result["created_at"]
+            result["created_at"] = (
+                datetime.fromisoformat(
+                    result["created_at"]
+                )
             )
 
-        except Exception:
-            pass
+        except ValueError:
+
+            result["created_at"] = (
+                datetime.now(timezone.utc)
+            )
 
     return result
 
+
+# ============================================================
+# ADMIN - DELETE BOOKING
+# ============================================================
 
 @api_router.delete(
     "/admin/bookings/{booking_id}"
@@ -433,9 +649,22 @@ async def admin_delete_booking(
     _: str = Depends(require_admin),
 ):
 
-    result = await db.bookings.delete_one(
-        {"id": booking_id}
-    )
+    try:
+
+        result = await db.bookings.delete_one(
+            {"id": booking_id}
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Failed to delete booking"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not delete booking",
+        )
 
     if result.deleted_count == 0:
 
@@ -445,42 +674,86 @@ async def admin_delete_booking(
         )
 
     return {
-        "ok": True
+        "ok": True,
+        "message": "Booking deleted",
     }
 
 
-@api_router.get("/admin/stats")
+# ============================================================
+# ADMIN - STATISTICS
+# ============================================================
+
+@api_router.get(
+    "/admin/stats"
+)
 async def admin_stats(
     _: str = Depends(require_admin),
 ):
 
-    total = await db.bookings.count_documents({})
+    try:
 
-    new = await db.bookings.count_documents({
-        "status": "new"
-    })
+        total = await db.bookings.count_documents({})
 
-    confirmed = await db.bookings.count_documents({
-        "status": "confirmed"
-    })
+        new = await db.bookings.count_documents({
+            "status": "new"
+        })
 
-    completed = await db.bookings.count_documents({
-        "status": "completed"
-    })
+        confirmed = await db.bookings.count_documents({
+            "status": "confirmed"
+        })
 
-    cancelled = await db.bookings.count_documents({
-        "status": "cancelled"
-    })
+        completed = await db.bookings.count_documents({
+            "status": "completed"
+        })
 
-    today_iso = datetime.now(
+        cancelled = await db.bookings.count_documents({
+            "status": "cancelled"
+        })
+
+    except Exception:
+
+        logger.exception(
+            "Failed to calculate statistics"
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not calculate statistics",
+        )
+
+    today = datetime.now(
         timezone.utc
     ).strftime("%Y-%m-%d")
 
-    today = await db.bookings.count_documents({
-        "created_at": {
-            "$regex": f"^{today_iso}"
-        }
-    })
+    today_count = 0
+
+    try:
+
+        cursor = db.bookings.find(
+            {},
+            {
+                "_id": 0,
+                "created_at": 1,
+            },
+        )
+
+        async for document in cursor:
+
+            created_at = document.get(
+                "created_at"
+            )
+
+            if (
+                isinstance(created_at, str)
+                and created_at.startswith(today)
+            ):
+                today_count += 1
+
+    except Exception:
+
+        logger.exception(
+            "Failed to calculate today's bookings"
+        )
 
     return {
         "total": total,
@@ -488,7 +761,7 @@ async def admin_stats(
         "confirmed": confirmed,
         "completed": completed,
         "cancelled": cancelled,
-        "today": today,
+        "today": today_count,
     }
 
 
@@ -500,32 +773,34 @@ app.include_router(api_router)
 
 
 # ============================================================
-# REACT FRONTEND
+# REACT STATIC FILES
 # ============================================================
-
-FRONTEND_BUILD = PROJECT_ROOT / "frontend" / "build"
-
 
 if FRONTEND_BUILD.exists():
 
     logger.info(
-        "React build found at: %s",
+        "React build found: %s",
         FRONTEND_BUILD,
     )
 
-    # Serve React static assets
-    app.mount(
-        "/static",
-        StaticFiles(
-            directory=FRONTEND_BUILD / "static"
-        ),
-        name="static",
+    static_directory = (
+        FRONTEND_BUILD / "static"
     )
+
+    if static_directory.exists():
+
+        app.mount(
+            "/static",
+            StaticFiles(
+                directory=static_directory
+            ),
+            name="static",
+        )
 
 else:
 
     logger.warning(
-        "React build directory not found: %s",
+        "React build NOT found: %s",
         FRONTEND_BUILD,
     )
 
@@ -535,18 +810,22 @@ else:
 # ============================================================
 
 @app.get("/")
-async def serve_frontend():
+async def frontend_root():
 
-    index_file = FRONTEND_BUILD / "index.html"
+    index_file = (
+        FRONTEND_BUILD / "index.html"
+    )
 
-    if not index_file.exists():
+    if index_file.exists():
 
-        return {
-            "message": "Nishwa Tours & Travels API is running",
-            "frontend": "React build not found",
-        }
+        return FileResponse(
+            index_file
+        )
 
-    return FileResponse(index_file)
+    return {
+        "message": "Nishwa Tours & Travels API is running",
+        "frontend": "React build not found",
+    }
 
 
 # ============================================================
@@ -554,19 +833,21 @@ async def serve_frontend():
 # ============================================================
 
 @app.get("/{full_path:path}")
-async def react_spa_fallback(
+async def frontend_fallback(
     full_path: str,
 ):
 
-    # Never intercept API requests
+    # API routes must never be handled by React
     if full_path.startswith("api/"):
 
         raise HTTPException(
             status_code=404,
-            detail="Not Found",
+            detail="API endpoint not found",
         )
 
-    index_file = FRONTEND_BUILD / "index.html"
+    index_file = (
+        FRONTEND_BUILD / "index.html"
+    )
 
     if not index_file.exists():
 
@@ -575,15 +856,19 @@ async def react_spa_fallback(
             detail="Frontend build not found",
         )
 
-    requested_file = FRONTEND_BUILD / full_path
+    requested_file = (
+        FRONTEND_BUILD / full_path
+    )
 
-    # Serve an existing frontend file
     if requested_file.is_file():
 
-        return FileResponse(requested_file)
+        return FileResponse(
+            requested_file
+        )
 
-    # React Router fallback
-    return FileResponse(index_file)
+    return FileResponse(
+        index_file
+    )
 
 
 # ============================================================
@@ -591,7 +876,10 @@ async def react_spa_fallback(
 # ============================================================
 
 @app.on_event("shutdown")
-async def shutdown_db_client():
+async def shutdown():
+
+    logger.info(
+        "Closing MongoDB connection"
+    )
 
     client.close()
-```
