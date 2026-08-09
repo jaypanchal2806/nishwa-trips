@@ -1,4 +1,3 @@
-```python
 from fastapi import (
     FastAPI,
     APIRouter,
@@ -8,10 +7,7 @@ from fastapi import (
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import (
-    HTTPBearer,
-    HTTPAuthorizationCredentials,
-)
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -166,21 +162,30 @@ api_router = APIRouter(
 
 
 # ============================================================
-# HTTP BEARER SECURITY
+# SWAGGER HTTP BEARER SECURITY
 # ============================================================
 #
-# IMPORTANT:
 # This creates the OpenAPI security scheme.
-# Swagger UI will automatically display the
-# "Authorize" button.
 #
-# DO NOT use Header() for the authorization token.
+# Swagger UI will show:
+#
+#     Authorize 🔒
+#
+# The user enters:
+#
+#     <JWT TOKEN>
+#
+# Swagger automatically sends:
+#
+#     Authorization: Bearer <JWT TOKEN>
+#
+# to protected endpoints.
 #
 # ============================================================
 
 security = HTTPBearer(
     scheme_name="BearerAuth",
-    description="Enter your JWT token",
+    description="Enter the JWT token returned by /api/admin/login",
     auto_error=True,
 )
 
@@ -316,13 +321,13 @@ def require_admin(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
     """
-    Validate the JWT Bearer token.
+    Validate JWT Bearer authentication.
 
-    Swagger UI will send:
+    HTTPBearer automatically reads:
 
-        Authorization: Bearer <JWT_TOKEN>
+        Authorization: Bearer <JWT>
 
-    automatically after clicking Authorize.
+    credentials.credentials contains ONLY the JWT token.
     """
 
     if credentials is None:
@@ -330,14 +335,6 @@ def require_admin(
             status_code=401,
             detail="Authentication required",
         )
-
-    # HTTPBearer extracts ONLY the token.
-    #
-    # Example:
-    #
-    # Authorization: Bearer abc123
-    #
-    # credentials.credentials == "abc123"
 
     token = credentials.credentials.strip()
 
@@ -916,6 +913,7 @@ async def frontend_fallback(
     full_path: str,
 ):
 
+    # Never let React fallback handle API routes
     if full_path.startswith("api/"):
 
         raise HTTPException(
@@ -961,4 +959,3 @@ async def shutdown():
     )
 
     client.close()
-```
