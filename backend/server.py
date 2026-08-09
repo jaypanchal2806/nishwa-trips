@@ -1,10 +1,11 @@
 ```python
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Header
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+
 import os
 import logging
 from pathlib import Path
@@ -22,10 +23,7 @@ import jwt
 ROOT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = ROOT_DIR.parent
 
-# Load .env from backend/.env if available
 load_dotenv(ROOT_DIR / ".env")
-
-# Also try project-root .env
 load_dotenv(PROJECT_ROOT / ".env")
 
 
@@ -38,17 +36,33 @@ DB_NAME = os.environ.get("DB_NAME")
 ADMIN_PASSCODE = os.environ.get("ADMIN_PASSCODE")
 JWT_SECRET = os.environ.get("JWT_SECRET")
 
+JWT_ALG = "HS256"
+JWT_TTL_HOURS = 24 * 7
+
+
 if not MONGO_URL:
-    raise RuntimeError("MONGO_URL environment variable is not set")
+    raise RuntimeError("MONGO_URL environment variable is missing")
 
 if not DB_NAME:
-    raise RuntimeError("DB_NAME environment variable is not set")
+    raise RuntimeError("DB_NAME environment variable is missing")
 
 if not ADMIN_PASSCODE:
-    raise RuntimeError("ADMIN_PASSCODE environment variable is not set")
+    raise RuntimeError("ADMIN_PASSCODE environment variable is missing")
 
 if not JWT_SECRET:
-    raise RuntimeError("JWT_SECRET environment variable is not set")
+    raise RuntimeError("JWT_SECRET environment variable is missing")
+
+
+# ============================================================
+# LOGGING
+# ============================================================
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================
@@ -60,30 +74,39 @@ db = client[DB_NAME]
 
 
 # ============================================================
-# APP CONFIGURATION
+# FASTAPI APP
 # ============================================================
-
-JWT_ALG = "HS256"
-JWT_TTL_HOURS = 24 * 7
 
 app = FastAPI(
     title="Nishwa Tours & Travels API",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 api_router = APIRouter(prefix="/api")
 
 
 # ============================================================
-# LOGGING
+# CORS
 # ============================================================
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+cors_origins = os.environ.get(
+    "CORS_ORIGINS",
+    "https://nishwatoursandtravels.in,"
+    "https://www.nishwatoursandtravels.in,"
+    "https://nishwa-trips.onrender.com,"
+    "http://localhost:3000",
+).split(",")
 
-logger = logging.getLogger(__name__)
+cors_origins = [origin.strip() for origin in cors_origins if origin.strip()]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ============================================================
@@ -95,16 +118,22 @@ class BookingCreate(BaseModel):
     phone: str = Field(..., min_length=6, max_length=20)
     car_type: str = Field(
         ...,
-        description="Swift Dzire | Ertiga | Innova Crysta"
+        description="Swift Dzire | Ertiga | Innova Crysta",
     )
     trip_type: str = Field(
         ...,
-        description="One Way | Round Trip"
+        description="One Way | Round Trip",
     )
     pickup: str = Field(..., min_length=2, max_length=200)
     drop: str = Field(..., min_length=2, max_length=200)
-    travel_date: str = Field(..., description="YYYY-MM-DD")
-    message: Optional[str] = Field(default="", max_length=500)
+    travel_date: str = Field(
+        ...,
+        description="YYYY-MM-DD",
+    )
+    message: Optional[str] = Field(
+        default="",
+        max_length=500,
+    )
 
 
 class Booking(BaseModel):
@@ -121,6 +150,7 @@ class Booking(BaseModel):
     pickup: str
     drop: str
     travel_date: str
+
     message: str = ""
     status: str = "new"
 
@@ -154,62 +184,65 @@ def make_token() -> AdminToken:
 
     payload = {
         "sub": "admin",
-        "exp": exp
+        "exp": exp,
     }
 
     token = jwt.encode(
         payload,
         JWT_SECRET,
-        algorithm=JWT_ALG
+        algorithm=JWT_ALG,
     )
 
     return AdminToken(
         token=token,
-        expires_at=exp.isoformat()
+        expires_at=exp.isoformat(),
     )
 
 
 def require_admin(
-    authorization: Optional[str] = Header(None)
+    authorization: Optional[str] = Header(None),
 ) -> str:
 
     if not authorization:
         raise HTTPException(
             status_code=401,
-            detail="Missing Bearer token"
+            detail="Missing Bearer token",
         )
 
     if not authorization.lower().startswith("bearer "):
         raise HTTPException(
             status_code=401,
-            detail="Missing Bearer token"
+            detail="Invalid authorization format",
         )
 
-    token = authorization.split(" ", 1)[1].strip()
+    token = authorization.split(
+        " ",
+        1,
+    )[1].strip()
 
     try:
         payload = jwt.decode(
             token,
             JWT_SECRET,
-            algorithms=[JWT_ALG]
+            algorithms=[JWT_ALG],
         )
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=401,
-            detail="Token expired"
+            detail="Token expired",
         )
 
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=401,
-            detail="Invalid token"
+            detail="Invalid token",
         )
 
     if payload.get("sub") != "admin":
         raise HTTPException(
             status_code=401,
-            detail="Invalid subject"
+            detail="Invalid subject",
         )
 
     return "admin"
@@ -223,26 +256,25 @@ def require_admin(
 async def api_root():
     return {
         "message": "Nishwa Tours & Travels API is running",
-        "status": "success"
+        "status": "ok",
     }
 
 
 @api_router.get("/health")
-async def api_health():
+async def health():
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "service": "Nishwa Tours & Travels API",
     }
 
 
-# ============================================================
-# BOOKINGS
-# ============================================================
-
 @api_router.post(
     "/bookings",
-    response_model=Booking
+    response_model=Booking,
 )
-async def create_booking(payload: BookingCreate):
+async def create_booking(
+    payload: BookingCreate,
+):
 
     booking = Booking(
         **payload.model_dump()
@@ -253,35 +285,40 @@ async def create_booking(payload: BookingCreate):
     doc["created_at"] = doc["created_at"].isoformat()
 
     try:
+
         await db.bookings.insert_one(doc)
 
     except Exception as e:
-        logger.error(
-            f"Failed to save booking: {e}"
+
+        logger.exception(
+            "Failed to save booking"
         )
 
         raise HTTPException(
             status_code=500,
-            detail="Could not save booking"
+            detail="Could not save booking",
         )
 
     return booking
 
 
 # ============================================================
-# ADMIN LOGIN
+# ADMIN ROUTES
 # ============================================================
 
 @api_router.post(
     "/admin/login",
-    response_model=AdminToken
+    response_model=AdminToken,
 )
-async def admin_login(payload: AdminLogin):
+async def admin_login(
+    payload: AdminLogin,
+):
 
     if payload.passcode != ADMIN_PASSCODE:
+
         raise HTTPException(
             status_code=401,
-            detail="Invalid passcode"
+            detail="Invalid passcode",
         )
 
     return make_token()
@@ -289,44 +326,42 @@ async def admin_login(payload: AdminLogin):
 
 @api_router.get("/admin/me")
 async def admin_me(
-    _: str = Depends(require_admin)
+    _: str = Depends(require_admin),
 ):
+
     return {
         "ok": True,
-        "role": "admin"
+        "role": "admin",
     }
 
 
-# ============================================================
-# ADMIN BOOKINGS
-# ============================================================
-
 @api_router.get(
     "/admin/bookings",
-    response_model=List[Booking]
+    response_model=List[Booking],
 )
 async def admin_list_bookings(
-    _: str = Depends(require_admin)
+    _: str = Depends(require_admin),
 ):
 
     docs = await db.bookings.find(
         {},
-        {"_id": 0}
+        {"_id": 0},
     ).sort(
         "created_at",
-        -1
+        -1,
     ).to_list(2000)
 
-    for d in docs:
+    for doc in docs:
 
         if isinstance(
-            d.get("created_at"),
-            str
+            doc.get("created_at"),
+            str,
         ):
 
             try:
-                d["created_at"] = datetime.fromisoformat(
-                    d["created_at"]
+
+                doc["created_at"] = datetime.fromisoformat(
+                    doc["created_at"]
                 )
 
             except Exception:
@@ -337,54 +372,57 @@ async def admin_list_bookings(
 
 @api_router.patch(
     "/admin/bookings/{booking_id}",
-    response_model=Booking
+    response_model=Booking,
 )
 async def admin_update_booking(
     booking_id: str,
     patch: BookingUpdate,
-    _: str = Depends(require_admin)
+    _: str = Depends(require_admin),
 ):
 
     updates = {
-        k: v
-        for k, v in patch.model_dump().items()
-        if v is not None
+        key: value
+        for key, value in patch.model_dump().items()
+        if value is not None
     }
 
     if not updates:
+
         raise HTTPException(
             status_code=400,
-            detail="No fields to update"
+            detail="No fields to update",
         )
 
-    res = await db.bookings.find_one_and_update(
+    result = await db.bookings.find_one_and_update(
         {"id": booking_id},
         {"$set": updates},
-        return_document=True
+        return_document=True,
     )
 
-    if not res:
+    if not result:
+
         raise HTTPException(
             status_code=404,
-            detail="Booking not found"
+            detail="Booking not found",
         )
 
-    res.pop("_id", None)
+    result.pop("_id", None)
 
     if isinstance(
-        res.get("created_at"),
-        str
+        result.get("created_at"),
+        str,
     ):
 
         try:
-            res["created_at"] = datetime.fromisoformat(
-                res["created_at"]
+
+            result["created_at"] = datetime.fromisoformat(
+                result["created_at"]
             )
 
         except Exception:
             pass
 
-    return res
+    return result
 
 
 @api_router.delete(
@@ -392,17 +430,18 @@ async def admin_update_booking(
 )
 async def admin_delete_booking(
     booking_id: str,
-    _: str = Depends(require_admin)
+    _: str = Depends(require_admin),
 ):
 
-    res = await db.bookings.delete_one(
+    result = await db.bookings.delete_one(
         {"id": booking_id}
     )
 
-    if res.deleted_count == 0:
+    if result.deleted_count == 0:
+
         raise HTTPException(
             status_code=404,
-            detail="Booking not found"
+            detail="Booking not found",
         )
 
     return {
@@ -410,13 +449,9 @@ async def admin_delete_booking(
     }
 
 
-# ============================================================
-# ADMIN STATS
-# ============================================================
-
 @api_router.get("/admin/stats")
 async def admin_stats(
-    _: str = Depends(require_admin)
+    _: str = Depends(require_admin),
 ):
 
     total = await db.bookings.count_documents({})
@@ -453,7 +488,7 @@ async def admin_stats(
         "confirmed": confirmed,
         "completed": completed,
         "cancelled": cancelled,
-        "today": today
+        "today": today,
     }
 
 
@@ -468,97 +503,87 @@ app.include_router(api_router)
 # REACT FRONTEND
 # ============================================================
 
-# Expected React build location:
-#
-# project/
-# ├── backend/
-# │   └── server.py
-# └── frontend/
-#     └── build/
-#         ├── index.html
-#         └── static/
-#
-
-FRONTEND_DIR = PROJECT_ROOT / "frontend" / "build"
-FRONTEND_INDEX = FRONTEND_DIR / "index.html"
+FRONTEND_BUILD = PROJECT_ROOT / "frontend" / "build"
 
 
-@app.get("/")
-async def frontend_root():
+if FRONTEND_BUILD.exists():
 
-    if FRONTEND_INDEX.exists():
-        return FileResponse(
-            FRONTEND_INDEX
-        )
+    logger.info(
+        "React build found at: %s",
+        FRONTEND_BUILD,
+    )
 
-    return {
-        "message": "Nishwa Tours & Travels API is running",
-        "frontend": "React build not found",
-        "status": "backend-only"
-    }
-
-
-# Serve React static files
-if FRONTEND_DIR.exists():
-
+    # Serve React static assets
     app.mount(
         "/static",
         StaticFiles(
-            directory=FRONTEND_DIR / "static"
+            directory=FRONTEND_BUILD / "static"
         ),
-        name="static"
+        name="static",
     )
+
+else:
+
+    logger.warning(
+        "React build directory not found: %s",
+        FRONTEND_BUILD,
+    )
+
+
+# ============================================================
+# FRONTEND ROOT
+# ============================================================
+
+@app.get("/")
+async def serve_frontend():
+
+    index_file = FRONTEND_BUILD / "index.html"
+
+    if not index_file.exists():
+
+        return {
+            "message": "Nishwa Tours & Travels API is running",
+            "frontend": "React build not found",
+        }
+
+    return FileResponse(index_file)
 
 
 # ============================================================
 # REACT SPA FALLBACK
 # ============================================================
 
-# This allows routes such as:
-#
-# /about
-# /contact
-# /booking
-#
-# to load the React application instead of returning 404.
-
 @app.get("/{full_path:path}")
-async def react_spa_fallback(full_path: str):
+async def react_spa_fallback(
+    full_path: str,
+):
 
-    # Never intercept API routes
+    # Never intercept API requests
     if full_path.startswith("api/"):
+
         raise HTTPException(
             status_code=404,
-            detail="API endpoint not found"
+            detail="Not Found",
         )
 
-    if FRONTEND_INDEX.exists():
-        return FileResponse(
-            FRONTEND_INDEX
+    index_file = FRONTEND_BUILD / "index.html"
+
+    if not index_file.exists():
+
+        raise HTTPException(
+            status_code=404,
+            detail="Frontend build not found",
         )
 
-    raise HTTPException(
-        status_code=404,
-        detail="Frontend not found"
-    )
+    requested_file = FRONTEND_BUILD / full_path
 
+    # Serve an existing frontend file
+    if requested_file.is_file():
 
-# ============================================================
-# CORS
-# ============================================================
+        return FileResponse(requested_file)
 
-cors_origins = os.environ.get(
-    "CORS_ORIGINS",
-    "*"
-).split(",")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=cors_origins,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    # React Router fallback
+    return FileResponse(index_file)
 
 
 # ============================================================
