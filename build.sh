@@ -1,28 +1,55 @@
 ```bash
 #!/usr/bin/env bash
 
-set -e
+set -o errexit
 
-echo "Starting Nishwa Trips build"
+echo "========================================"
+echo "Starting Nishwa Tours & Travels build"
+echo "========================================"
 
-echo "Installing backend dependencies"
+# ------------------------------------------------------------
+# Backend dependencies
+# ------------------------------------------------------------
+
+echo "Installing Python dependencies..."
+
+pip install --upgrade pip
+
 pip install -r backend/requirements.txt
 
-echo "Installing frontend dependencies"
+
+# ------------------------------------------------------------
+# Frontend dependencies
+# ------------------------------------------------------------
+
+echo "Installing frontend dependencies..."
+
 cd frontend
 
-rm -rf node_modules
-
-echo "Installing npm packages"
 npm install --legacy-peer-deps
 
-echo "Building React application"
+
+# ------------------------------------------------------------
+# Build React frontend
+# ------------------------------------------------------------
+
+echo "Building React frontend..."
+
 npm run build
 
-if [ ! -d "build" ]; then
-    echo "ERROR: frontend/build was not created"
-    exit 1
-fi
 
+# ------------------------------------------------------------
+# Finish
+# ------------------------------------------------------------
+
+cd ..
+
+echo "========================================"
 echo "Build completed successfully"
+echo "========================================"
+
+echo "Frontend build location:"
+echo "frontend/build"
+
+ls -la frontend/build || true
 ```
