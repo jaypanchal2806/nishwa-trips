@@ -7,33 +7,20 @@ echo "Starting Nishwa Tours & Travels build"
 echo "========================================"
 
 echo "Installing Python dependencies..."
-
 pip install --upgrade pip
 pip install -r backend/requirements.txt
 
-
-echo "Installing React dependencies..."
-
+echo "Installing Node/Yarn dependencies..."
 cd frontend
 
-# Remove old dependency tree
-rm -rf node_modules
-rm -f package-lock.json
-
-# Install dependencies
-npm install --legacy-peer-deps
-
-# Fix AJV compatibility
-npm install --save-dev ajv@8.17.1 ajv-keywords@5.1.0 --legacy-peer-deps
+corepack enable
+yarn install --frozen-lockfile
 
 echo "Building React application..."
-
-npm run build
-
+yarn build
 
 if [ ! -f "build/index.html" ]; then
     echo "ERROR: React build failed."
-    echo "frontend/build/index.html was not created."
     exit 1
 fi
 
