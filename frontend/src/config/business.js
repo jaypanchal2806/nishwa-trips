@@ -4,13 +4,13 @@ export const BUSINESS = {
   short: "Nishwa Travels",
   tagline: "OneWay Ride Anytime — AnyWhere from Ahmedabad",
   city: "Ahmedabad, Gujarat",
-  phone: "7600515130",
-  phoneDisplay: "+91 76005 15130",
+  phone: "9727338182",
+  phoneDisplay: "+91 97273 38182",
   email: "nishwatourandtravels@gmail.com",
-  whatsappBase: "https://wa.me/917600515130",
+  whatsappBase: "https://wa.me/919727338182",
   mapUrl: "https://maps.app.goo.gl/thDTmPJm7sBEcGgR7?g_st=ic",
-  instagram: "nishwa_tours_travels",
-  instagramUrl: "https://instagram.com/nishwa_tours_travels",
+  instagram: "nishwa_travels",
+  instagramUrl: "https://instagram.com/nishwa_travels",
   established: 2019,
 };
 
