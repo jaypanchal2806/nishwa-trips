@@ -1,38 +1,42 @@
-// Admin API helper for Nishwa Tours & Travels
-// Handles:
-// - Backend API URL
-// - Admin token storage
-// - Authorization headers
-// - Authenticated Axios requests
-// - Automatic token cleanup on 401
-
 import axios from "axios";
 
 /*
- * Backend URL
- *
- * If REACT_APP_BACKEND_URL is configured in Render,
- * it will be used.
- *
- * Otherwise, because frontend and backend are served
- * from the same Render domain, window.location.origin
- * will be used automatically.
- */
+|--------------------------------------------------------------------------
+| Backend URL
+|--------------------------------------------------------------------------
+|
+| If Render has REACT_APP_BACKEND_URL configured, use it.
+| Otherwise use the current website domain.
+|
+*/
+
 const BACKEND_URL =
   process.env.REACT_APP_BACKEND_URL || window.location.origin;
 
-// Remove trailing slash if one exists
 const CLEAN_BACKEND_URL = BACKEND_URL.replace(/\/+$/, "");
 
-// Main API URL
+/*
+|--------------------------------------------------------------------------
+| API Base URL
+|--------------------------------------------------------------------------
+*/
+
 export const API = `${CLEAN_BACKEND_URL}/api`;
 
-// LocalStorage key used for the admin JWT token
+/*
+|--------------------------------------------------------------------------
+| Token Storage
+|--------------------------------------------------------------------------
+*/
+
 const TOKEN_KEY = "nishwa_admin_token";
 
-/**
- * Get saved admin token
- */
+/*
+|--------------------------------------------------------------------------
+| Get Token
+|--------------------------------------------------------------------------
+*/
+
 export const getToken = () => {
   try {
     return localStorage.getItem(TOKEN_KEY) || "";
@@ -42,13 +46,16 @@ export const getToken = () => {
   }
 };
 
-/**
- * Save admin token
- */
+/*
+|--------------------------------------------------------------------------
+| Save Token
+|--------------------------------------------------------------------------
+*/
+
 export const setToken = (token) => {
   try {
     if (!token) {
-      console.warn("Attempted to save an empty admin token.");
+      console.warn("Empty admin token received.");
       return;
     }
 
@@ -58,9 +65,12 @@ export const setToken = (token) => {
   }
 };
 
-/**
- * Remove admin token
- */
+/*
+|--------------------------------------------------------------------------
+| Clear Token
+|--------------------------------------------------------------------------
+*/
+
 export const clearToken = () => {
   try {
     localStorage.removeItem(TOKEN_KEY);
@@ -69,14 +79,12 @@ export const clearToken = () => {
   }
 };
 
-/**
- * Create Authorization header
- *
- * Result:
- * {
- *   Authorization: "Bearer YOUR_JWT_TOKEN"
- * }
- */
+/*
+|--------------------------------------------------------------------------
+| Authorization Header
+|--------------------------------------------------------------------------
+*/
+
 export const authHeader = () => {
   const token = getToken();
 
@@ -89,29 +97,39 @@ export const authHeader = () => {
   };
 };
 
-/**
- * Authenticated Axios instance for Admin APIs
- */
+/*
+|--------------------------------------------------------------------------
+| Axios Instance
+|--------------------------------------------------------------------------
+*/
+
 export const adminAxios = axios.create({
   baseURL: API,
+
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
   },
 });
 
-/**
- * Automatically attach the latest token to every admin request.
- *
- * This is safer than manually adding authHeader()
- * to every request.
- */
+/*
+|--------------------------------------------------------------------------
+| Request Interceptor
+|--------------------------------------------------------------------------
+|
+| Automatically attaches:
+|
+| Authorization: Bearer YOUR_TOKEN
+|
+*/
+
 adminAxios.interceptors.request.use(
   (config) => {
     const token = getToken();
 
     if (token) {
       config.headers = config.headers || {};
+
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -122,22 +140,27 @@ adminAxios.interceptors.request.use(
   }
 );
 
-/**
- * Handle authentication errors.
- *
- * 401 = invalid/expired token
- *
- * 403 = authenticated request is not permitted.
- */
+/*
+|--------------------------------------------------------------------------
+| Response Interceptor
+|--------------------------------------------------------------------------
+|
+| If JWT expires or becomes invalid,
+| remove it from localStorage.
+|
+*/
+
 adminAxios.interceptors.response.use(
   (response) => {
     return response;
   },
+
   (error) => {
     const status = error?.response?.status;
 
     if (status === 401) {
-      console.warn("Admin session expired or token is invalid.");
+      console.warn("Admin token expired or invalid.");
+
       clearToken();
     }
 
@@ -145,9 +168,12 @@ adminAxios.interceptors.response.use(
   }
 );
 
-/**
- * Optional helper to check whether an admin is logged in.
- */
+/*
+|--------------------------------------------------------------------------
+| Check Login
+|--------------------------------------------------------------------------
+*/
+
 export const isAdminLoggedIn = () => {
   return Boolean(getToken());
 };
